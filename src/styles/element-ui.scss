@@ -31,3 +31,16 @@
 .el-loading-mask {
   z-index: 1000;
 }
+
+.el-collapse-item__header {
+  padding-left: 20px;
+  border-bottom: none;
+  .el-collapse-item.active,.el-collapse-item:hover{
+    background-color: #409eff;
+    color: #fff;
+    
+  }
+  
+  
+  
+}

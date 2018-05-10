@@ -81,7 +81,8 @@
     </el-dialog>
 </template>
 <script>
-    import { dictList, getServerList,addServer } from '@/api/service.js'
+    import { dictList, serviceEntryInfo, addServer, updateServiceEntryInfo} from '@/api/service.js'
+    import { getServerList } from '@/api/server.js'
     export default {
         props:["dialogFormVisible"],
         data () {
@@ -195,6 +196,19 @@
             dialogFormVisible (val){
                 console.log("监听dialogFormVisible："+val)
                 this.isVisible = val
+                if(val) {
+                    // 获取服务接入信息
+                    serviceEntryInfo({serviceId:this.$store.state.service.serviceId}).then(response =>{
+                        if(response.data != null){
+                            this.serverInfo = response.data
+                        }
+                        
+                    })
+                    // 获取服务器列表
+                    getServerList().then(response =>{
+                        this.defauleTableData = response.data
+                    })
+                }
             },
             isVisible(val) {
                 this.$emit("dialogMethod",val)
@@ -229,20 +243,33 @@
                 // 提交接入信息
                 console.log("+++++++++++++++++++保存接入信息+++++++++++++++++++++")
                 console.log(this.$store.state.service.serviceId)
+                console.log(this.$store.state.service.isEditMode)
+                
                 this.serverInfo.accessId = this.$store.state.service.serviceId
                 console.log(this.serverInfo)
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         // alert('submit!');
+                        if(this.$store.state.service.isEditMode){
+                            updateServiceEntryInfo(this.serverInfo).then(response =>{
+                                this.$message({
+                                    message: '保存接入信息成功！',
+                                    type: 'success'
+                                });
+                                this.closeDialog()
+                                this.$emit("returnBack")
+                            })
+                        }else{
+                            addServer(this.serverInfo).then(response =>{
+                                this.$message({
+                                    message: '保存接入信息成功！',
+                                    type: 'success'
+                                });
+                                this.closeDialog()
+                                this.$emit("returnBack")
+                            })
+                        }
                        
-                       addServer(this.serverInfo).then(response =>{
-                            this.$message({
-                                message: '保存接入信息成功！',
-                                type: 'success'
-                            });
-                            this.closeDialog()
-                            this.$emit("returnBack")
-                       })
                     } else {
                         console.log('error submit!!');
                         return false;
@@ -258,10 +285,7 @@
             dictList().then(response => {
                 this.dictList = response.data
             })
-            // // 获取服务器信息
-            // getServerList().then(response =>{
-            //    this.defauleTableData = response.data
-            // })
+            
           
         }
     }

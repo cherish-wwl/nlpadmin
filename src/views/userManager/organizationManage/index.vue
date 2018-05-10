@@ -4,25 +4,27 @@
     <el-input
       placeholder="请输入内容"
       prefix-icon="el-icon-search"
-      v-model="searchKey">
+      v-model="searchKey"
+      v-on:change='querySearch' 
+      @keyup.enter.native="querySearch">
     </el-input>
     <el-button type="primary" @click="addRowData('add')" size='small'>添加</el-button>
     <br />
     <br />
-    <el-table :data="tableData"  border style="width: 100%" v-loading="loading">
-         <el-table-column prop="academyId" label="序号" type='index' width="50"> </el-table-column>
-        <el-table-column prop="academyName" label="机构名称" width="160"> </el-table-column>
+    <el-table :data="tableData"  border style="width: 100%" v-loading="loading" >
+      <el-table-column prop="academyId" label="序号" type='index' align="center" width="50"> </el-table-column>
+      <el-table-column prop="academyName" label="机构名称" min-width="160"> </el-table-column>
 
-        <el-table-column prop="academyDesc" label="描述" width="280"> </el-table-column>
-        <el-table-column prop="academyPhone" label="联系人电话" width="150"> </el-table-column>
-        <el-table-column prop="academyURL" label="访问地址" width="150"> </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" width="150"> </el-table-column>
-        <el-table-column label="操作" width="90">
-          <template slot-scope="scope">
-              <el-button @click="deleteRowData(scope.row)" type="text" size="small">删除</el-button>
-              <el-button @click="editRowData('edit',scope.row)" type="text" size="small">编辑</el-button>
-          </template>
-        </el-table-column>
+      <el-table-column prop="academyDesc" label="描述" min-width="280"> </el-table-column>
+      <el-table-column prop="academyPhone" label="联系人电话" min-width="150"> </el-table-column>
+      <el-table-column prop="academyURL" label="访问地址" min-width="150"> </el-table-column>
+      <el-table-column prop="createTime" label="创建时间" min-width="150"> </el-table-column>
+      <el-table-column label="操作" width="90" fixed='right'>
+        <template slot-scope="scope">
+            <el-button @click="deleteRowData(scope.row)" type="text" size="small">删除</el-button>
+            <el-button @click="editRowData('edit',scope.row)" type="text" size="small">编辑</el-button>
+        </template>
+      </el-table-column>
     </el-table>
     <br />
     <div class="block">
@@ -81,6 +83,12 @@ export default {
     }
   },
   methods:{
+    // 查询
+    querySearch(){
+      console.log("===================查询关键字======================")
+      console.log(this.searchKey)
+      this.loadingTableData()
+    },
     // 改变每页显示条数
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`)
@@ -97,24 +105,24 @@ export default {
     deleteRowData(row) {
       console.log(row)
       this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          delAcademy({id:row.academyId}).then(response => {
-            // 刷新表格
-            this.loadingTableData()
-            this.$message({
-              type: 'success',
-              message: '删除成功!'
-            })
-          })
-        }).catch(() => {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        delAcademy({id:row.academyId}).then(response => {
+          // 刷新表格
+          this.loadingTableData()
           this.$message({
-            type: 'info',
-            message: '已取消删除'
-          })          
+            type: 'success',
+            message: '删除成功!'
+          })
         })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })          
+      })
        
     },
     editRowData(mode,row) {     
@@ -130,7 +138,7 @@ export default {
       this.dialogFormVisible = true
     },
     loadingTableData(){
-      getList ({pageNow:this.currentPage,pageSize:this.pageSize}).then(response => {
+      getList ({pageNow:this.currentPage,pageSize:this.pageSize,keyword:this.searchKey}).then(response => {
         this.tableData = response.data
         this.totalNumber =response.total
       })
@@ -169,9 +177,8 @@ export default {
           console.log('error submit!!');
           return false;
         }
-    })
+      })
     }
-
   },
   mounted (){
     this.loadingTableData()

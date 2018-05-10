@@ -38,7 +38,7 @@
             </el-form-item>
             <el-form-item label="所属学校：" class="width50" prop="academyId">
               <el-select v-model="serviceInfo.academyId" placeholder="请选择" @change="changeAcademy"> 
-                <el-option v-for="item in academyList" :key="item.academyId" :value="item.academyId" :label="item.academyName"></el-option>
+                <el-option v-for="item in academyList" :key="item.id" :value="item.id" :label="item.academyName"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="所有者：" class="width50" prop="professorId">
@@ -90,7 +90,8 @@
     </div>
 </template>
 <script>
-import { academyList, academyGroupList, academyProfessorList, dictList, addService ,getServiceInfo} from '@/api/service.js'
+import { academyList, academyGroupList,
+ academyProfessorList, dictList, addService ,getServiceInfo, updataServiceInfo} from '@/api/service.js'
 export default {
     props:[
         'currentNode',//当前分类信息
@@ -215,19 +216,32 @@ export default {
             console.log(this.currentNode)
             console.log(this.serviceInfo)
             console.log(this.$store.state.service.serviceId)
-            if(this.type == 1){
-                this.serviceInfo.serviceId = this.$store.state.service.serviceId
-            }
+            
             this.$refs[formName].validate((valid) => {
                 if (valid) {
                     // alert('submit!');
-                    addService(this.serviceInfo).then(reponse => {
-                        this.serviceId = reponse.data.id
-                        this.$store.dispatch('SetServiceId', this.serviceId)
-                        console.log(this.$store.state)
-                        // 刷新表格
-                        this.$emit("reloadingTable")
-                        if(this.type == 0){
+                    if(this.type == 1){
+                        this.serviceInfo.serviceId = this.$store.state.service.serviceId
+                        updataServiceInfo(this.serviceInfo).then(reponse => {
+                            
+                            console.log(this.$store.state)
+                            // 刷新表格
+                            this.$emit("reloadingTable")
+                            this.$message({
+                                message: '保存服务信息成功！',
+                                type: 'success'
+                            });
+                            this.returnBack()
+                            
+                        })
+                    }else{
+                        addService(this.serviceInfo).then(reponse => {
+                            this.serviceId = reponse.data.id
+                            this.$store.dispatch('SetServiceId', this.serviceId)
+                            console.log(this.$store.state)
+                            // 刷新表格
+                            this.$emit("reloadingTable")
+                            
                             this.$confirm('服务创建成功，是否维护接入信息', '提示', {
                                 confirmButtonText: '是',
                                 cancelButtonText: '否',
@@ -238,14 +252,9 @@ export default {
                                 // 返回服务列表
                                 this.returnBack()
                             });
-                        }else{
-                            this.$message({
-                                message: '保存服务信息成功！',
-                                type: 'success'
-                            });
-                            this.returnBack()
-                        }
-                    })
+                           
+                        })
+                    }
                 } else {
                     console.log('error submit!!');
                     return false;
@@ -279,6 +288,8 @@ export default {
             getServiceInfo({serviceId:this.$store.state.service.serviceId}).then(response =>{
                 this.serviceInfo = response.data
                 console.log(this.serviceInfo)
+                
+                this.changeAcademy(this.serviceInfo.academyId)
             })
         }else{
             this.serviceInfo =this.initServiceInfo

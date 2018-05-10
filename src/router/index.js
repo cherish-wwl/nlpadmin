@@ -83,34 +83,40 @@ export const constantRouterMap = [
     meta: { title: '系统管理', icon: 'tree' ,hasChildren:true },
     children: [
       {
-        path: 'userManager',
-        name: 'userManager',
-        meta: { title: '用户管理'},
-        component: () => import('@/views/userManager/index'), 
-      },
-      {
         path:'organizationManage',
         name: 'organizationManage',
         meta: { title: '机构管理'},
         component: () => import('@/views/userManager/organizationManage/index'), 
+      },
+      {
+        path: 'professorManage',
+        name: 'professorManage',
+        meta: { title: '教授管理'},
+        component: () => import('@/views/userManager/professorManage/index'), 
+      },
+      {
+        path:'serverManager',
+        name: 'serverManager',
+        meta: { title: '服务器管理'},
+        component: () => import('@/views/userManager/serverManage/index'), 
       }
     ]
   },
   
   { path: '*', redirect: '/404', hidden: true },
-  {
-    path: '/userManager2',
-    component: Layout,
-    meta: {hasChildren:false },
-    children: [
-      {
-        path: 'index',
-        name: 'userManager',
-        meta: { title: '用户管理2', icon: 'tree' },
-        component: () => import('@/views/userManager/index'), 
-      }
-    ]
-  },
+  // {
+  //   path: '/userManager2',
+  //   component: Layout,
+  //   meta: {hasChildren:false },
+  //   children: [
+  //     {
+  //       path: 'index',
+  //       name: 'userManager',
+  //       meta: { title: '用户管理2', icon: 'tree' },
+  //       component: () => import('@/views/userManager/index'), 
+  //     }
+  //   ]
+  // },
 ]
 
 export default new Router({

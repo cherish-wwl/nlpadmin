@@ -18,23 +18,24 @@
         <el-input
           placeholder="请输入关键字"
           suffix-icon="el-icon-search"
-          >
+          v-model="searchKeyWord"
+          v-on:change='querySearch' >
         </el-input>
         <el-button type="primary" @click="addOrEditService(0)" size='small'>添加服务</el-button>
         <br />
         <br />
         <el-table :data="tableData"  border style="width: 100%" v-loading="loading">
           <el-table-column prop="index" label="序号" type="index" align='center'> </el-table-column>
-          <el-table-column prop="serviceName" label="服务名称"> </el-table-column>
-          <el-table-column prop="serviceDescr" label="描述"> </el-table-column>
-          <el-table-column prop="url" label="服务调用路径"> </el-table-column>
+          <el-table-column prop="serviceName" label="服务名称" min-width="80"> </el-table-column>
+          <el-table-column prop="serviceDescr" label="描述" width="250" :formatter="stringFormatter"> </el-table-column>
+          <el-table-column prop="url" label="服务调用路径" min-width="150"> </el-table-column>
           
-          <el-table-column prop="in_arg" label="输入参数"> </el-table-column>
-          <el-table-column prop="banner" label="banner路径"> </el-table-column>
-          <el-table-column prop="academyName" label="所属学校"> </el-table-column>
-          <el-table-column prop="professorName" label="所有者"></el-table-column>
-          <el-table-column prop="serviceState" label="服务状态"></el-table-column>
-          <el-table-column prop="rel_time" label="发布时间"> </el-table-column>
+          <el-table-column prop="in_arg" label="输入参数" min-width="150"> </el-table-column>
+          <el-table-column prop="banner" label="banner路径" min-width="150"> </el-table-column>
+          <el-table-column prop="academyName" label="所属学校" min-width="150"> </el-table-column>
+          <el-table-column prop="professorName" label="所有者" min-width="150"></el-table-column>
+          <el-table-column prop="serviceState" label="服务状态" min-width="150"></el-table-column>
+          <el-table-column prop="rel_time" label="发布时间" min-width="100"> </el-table-column>
           <el-table-column label="操作" width="90" fixed="right">
             <template slot-scope="scope">
               <el-button @click="deleteRowData(scope.row)" type="text" size="small">删除</el-button>
@@ -63,6 +64,7 @@
 
 <script>
 import { getList, getServiceListById } from '@/api/table'
+import { delService } from '@/api/service'
 import { AddServicePanel, AddServerInfo} from '@/views/service/servicemanager/components'
 import { mapGetters } from 'vuex'
 export default {
@@ -80,6 +82,7 @@ export default {
       totalNumber: null,
       pageSize: 5,
       tableData: [],
+      searchKeyWord:'',
       props: {
           label: 'name',
           children: 'zones'
@@ -98,6 +101,22 @@ export default {
     AddServerInfo
   },
   methods: {
+    // 字符串转换
+    stringFormatter( row, column ){
+      console.log(row)
+      console.log(column)
+      if(row.serviceDescr != ''){
+        return row.serviceDescr.substring(0,30)+'...'
+      }
+      return ''
+
+    },
+    // 查询
+    querySearch (){
+      console.log("====================查询=====================")
+      console.log(this.searchKeyWord)
+      this.refreshLoadingData()
+    },
     // 改变每页显示多少条
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`)
@@ -122,22 +141,13 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-            delRowData({ id: row.id}).then(response => {
+            delService({ id: row.id}).then(response => {
               this.$message({
                 type: 'success',
                 message: '删除成功!'
               })
-              // 刷新树
-              console.log(this.$refs.tree.getCurrentNode())
-              let currentNode = this.$refs.tree.getCurrentNode()
-              if( currentNode == null ){
-                currentNode = { id: 0 }
-              }
-              getList({ id: currentNode.id }).then(response => {
-                this.$refs.tree.updateKeyChildren(currentNode.id,response.data)
-              })   
               //刷新表格 
-              this.refreshTableData(this.currentNodeId)
+              this.refreshLoadingData(this.currentNodeId)
            
             })
          
@@ -161,7 +171,7 @@ export default {
     },  
     refreshLoadingData(NodeId){
       this.loading = true 
-      getServiceListById({ id: this.currentNodeId, pageSize: this.pageSize, pageNow: this.currentPage}).then(responce =>{
+      getServiceListById({ id: this.currentNodeId, pageSize: this.pageSize, pageNow: this.currentPage,keyword:this.searchKeyWord}).then(responce =>{
         this.tableData = responce.data.result
         this.isLastClassify =responce.data.isLastClassify
         this.totalNumber = responce.total
@@ -191,8 +201,13 @@ export default {
       if(this.isLastClassify){
           this.type = type
           if(type == 1){
-            console.log(row)
+            // 编辑
+            // console.log(row)
+            this.$store.dispatch('SetIsEditMode', true)
+            
             this.$store.dispatch('SetServiceId', row.id)
+          }else{
+            this.$store.dispatch('SetIsEditMode', false)
           }
           this.addPanel = true
       }else{

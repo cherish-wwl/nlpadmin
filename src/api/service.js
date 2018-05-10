@@ -42,14 +42,7 @@ export function addService(params) {
     })
 }
 
-// 获取服务器接入信息
-export function getServerList(params){
-    return request({
-      url:'/classify/serviceDetail',
-      method:'post',
-      params
-    })
-}
+
 // 获取服务信息
 export function getServiceInfo(params){
   return request({
@@ -59,8 +52,7 @@ export function getServiceInfo(params){
   })
 }
 
-// 保存接入信息接口 /entry/ServiceEntry/add
-
+// 保存新增接入信息接口 /entry/ServiceEntry/add
 export function addServer(params){
   return request({
     url:'entry/ServiceEntry/add',
@@ -68,3 +60,44 @@ export function addServer(params){
     params
   })
 }
+
+
+// 获取服务接入信息接口  serviceId  (谷跃飞)
+export function serviceEntryInfo(params){
+  return request({
+    url:'entry/serviceEntryInfo',
+    method:'post',
+    params
+  })
+}
+
+// 保存编辑服务信息接口   (谷跃飞)
+export function updataServiceInfo(params){
+  return request({
+    url:'classify/updateService',
+    method:'post',
+    data:params
+  })
+}
+
+// 保存编辑服务接入信息接口  serviceId  (谷跃飞)
+export function updateServiceEntryInfo(params){
+  return request({
+    url:'entry/update/serviceEntry',
+    method:'post',
+    params
+  })
+}
+
+
+// // 删除服务接口 （谷跃飞）
+export function delService(params){
+  return request({
+    url:'/classify/delService',
+    method:'post',
+    params
+  })
+}
+
+
+
