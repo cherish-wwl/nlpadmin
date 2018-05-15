@@ -103,8 +103,11 @@ export default {
   methods: {
     // 字符串转换
     stringFormatter( row, column ){
-      console.log(row)
-      console.log(column)
+      // console.log(row)
+      // console.log(column)
+      if(row.serviceDescr.length <= 30){
+        return row.serviceDescr
+      }
       if(row.serviceDescr != ''){
         return row.serviceDescr.substring(0,30)+'...'
       }

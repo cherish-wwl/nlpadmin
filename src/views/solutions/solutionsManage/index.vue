@@ -58,7 +58,7 @@
   </div>
 </template>
 <script>
-import { getList, addAcademy, updateAcademy, delAcademy } from '@/api/systemManage.js'
+import { getSchoolsList, addAcademy, updateAcademy, delAcademy } from '@/api/systemManager/organization'
 export default {
   data () {
     return {
@@ -109,7 +109,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        delAcademy({id:row.academyId}).then(response => {
+        delAcademy({id:row.id}).then(response => {
           // 刷新表格
           this.loadingTableData()
           this.$message({
@@ -138,7 +138,7 @@ export default {
       this.dialogFormVisible = true
     },
     loadingTableData(){
-      getList ({pageNow:this.currentPage,pageSize:this.pageSize,keyword:this.searchKey}).then(response => {
+      getSchoolsList ({pageNow:this.currentPage,pageSize:this.pageSize,keyword:this.searchKey}).then(response => {
         this.tableData = response.data
         this.totalNumber =response.total
       })

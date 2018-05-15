@@ -35,7 +35,7 @@ export function addlevelOneData(params) {
 // 增加二级目录
 export function addlevelTwoData(params) {
   return request({
-    url: '/dataset/dataType/add',
+    url: '/dataset/attr/add',
     method: 'post',
     params
   })
@@ -60,7 +60,7 @@ export function deletelevelOneData(params) {
 // 删除二级目录
 export function deletelevelTwoData(params) {
   return request({
-    url: '/dataset/dataType/del',
+    url: '/dataset/attr/del',
     method: 'post',
     params
   })
@@ -85,7 +85,7 @@ export function editlevelOneData(params) {
 // 编辑二级目录
 export function editlevelTwoData(params) {
   return request({
-    url: '/dataset/updateType',
+    url: '/dataset/updateAttr',
     method: 'post',
     params
   })

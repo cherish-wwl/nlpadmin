@@ -81,8 +81,9 @@
     </el-dialog>
 </template>
 <script>
-    import { dictList, serviceEntryInfo, addServer, updateServiceEntryInfo} from '@/api/service.js'
+    import { serviceEntryInfo, addServer, updateServiceEntryInfo} from '@/api/service.js'
     import { getServerList } from '@/api/server.js'
+    import { dictList } from '@/api/common'
     export default {
         props:["dialogFormVisible"],
         data () {

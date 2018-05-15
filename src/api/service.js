@@ -24,14 +24,7 @@ export function academyProfessorList(params) {
       params
     })
 }
-///查询字典表接口：/dict/list
-export function dictList(params) {
-    return request({
-      url: '/dict/list',
-      method: 'get',
-      params
-    })
-}
+
 
 // 保存服务接口：classify/addService
 export function addService(params) {

@@ -29,7 +29,7 @@ export const constantRouterMap = [
     path: '/',
     component: Layout,
     redirect: '/dashboard',
-    name: 'dashboard12312',
+    name: '主页',
     hidden: true,
     children: [{
       path: 'dashboard',
@@ -76,6 +76,21 @@ export const constantRouterMap = [
     ]
   },
   {
+    path: '/solutions',
+    component: Layout,
+    name: 'solutions',
+    redirect: '/solutions/solutionsManage',
+    meta: { title: '解决方案', icon: 'tree' ,hasChildren:true },
+    children: [
+      {
+        path: 'solutionsManage',
+        name: 'solutionsManage',
+        meta: { title: '解决方案管理'},
+        component: () => import('@/views/solutions/solutionsManage/index'), 
+      }
+    ]
+  },
+  {
     path: '/systemManager',
     component: Layout,
     name: 'systemManager',
@@ -83,15 +98,9 @@ export const constantRouterMap = [
     meta: { title: '系统管理', icon: 'tree' ,hasChildren:true },
     children: [
       {
-        path:'organizationManage',
-        name: 'organizationManage',
-        meta: { title: '机构管理'},
-        component: () => import('@/views/userManager/organizationManage/index'), 
-      },
-      {
         path: 'professorManage',
         name: 'professorManage',
-        meta: { title: '教授管理'},
+        meta: { title: '机构与教授管理'},
         component: () => import('@/views/userManager/professorManage/index'), 
       },
       {

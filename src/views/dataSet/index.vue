@@ -64,7 +64,7 @@
     </el-row>
     <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible">
       <el-form :model="form">
-        <el-form-item v-for="(key,index) in initForm" :key='index'  :label='index' :label-width="formLabelWidth">
+        <el-form-item v-for="(key,index) in form" :key='index'  :label='index' :label-width="formLabelWidth">
              <el-input :type="index=='introduce' ? 'textarea' : ''" auto-complete="off" v-model="form[index]"></el-input>
         </el-form-item>
       </el-form>
@@ -98,35 +98,29 @@ export default {
       tableData:[],
       dialogFormVisible:false,
       dialogTitle:'添加数据',   
-      form:{
-        "name":'',
-        "type_name":"",
-        "image":"",
-        "size":"",
-        "uploader":"",
-        "introduce":"",
-        "format":"",
-        // "id":"",
-        "type":"",
-        "attr":"",
-        "url":"",
-       
-      },
+      form:{},
       initForm:{
         "name":'',
-        "type_name":"",
+        //"type_name":"",
         "image":"",
         "size":"",
         "uploader":"",
         "introduce":"",
         "format":"",
         // "id":"",
-        "type":"",
-        "attr":"",
+        //"type":"",
+        //"attr":"",
         "url":"",
        
       },
+      
+      classForm:{
+        name:'',
+        icon:''
+      },
+    
       dataMode:"add",
+      levelNum:'one',
       formLabelWidth: '120px'
     }
   },
@@ -192,49 +186,10 @@ export default {
       this.loadingTable(this.currentLevelTwoId)
     },
     addClick ( level ) {
-      this.$prompt('请输入名称', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputPlaceholder:'请输入名称'
-      }).then(({ value }) => {
-        if( value == '' ||value == null){
-          return false
-        }
-        if(level == 'one'){
-          addlevelOneData({name:value}).then(responce => {
-            // 刷新列表
-            this.loadingOneLevel()
-            this.$message({
-              type: 'success',
-              message: '操作成功' 
-            })
-          })
-        }else if(level == 'two'){
-          addlevelTwoData({ name:value, attr:this.currentLevelOneId }).then(responce => {
-            // 刷新列表
-           this.loadingTwoLevel(this.currentLevelOneId)
-            this.$message({
-              type: 'success',
-              message: '操作成功' 
-            })
-          })
-        }else{
-          this.$message({
-            type: 'error',
-            message: '未知错误'
-          });       
-        }
-        
-        this.$message({
-          type: 'success',
-          message: '操作成功' 
-        });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '取消输入'
-        });       
-      })
+        this.dialogFormVisible = true
+        this.dialogTitle = '添加'
+        this.levelNum = level
+        this.form = this.classForm    
     },
     editClick ( item, level ) {
       console.log( item )
@@ -247,7 +202,7 @@ export default {
           return false
         }
         if( level == "one" ){
-          editlevelOneData({ id:item.id,name:value}).then(responce=>{
+          editlevelOneData({ id:item.id,name:value,attr:0}).then(responce=>{
             // 刷新列表
             this.loadingOneLevel()
             this.$message({
@@ -377,18 +332,45 @@ export default {
     submitForm(formName) {
       this.dialogFormVisible = false
       console.log(this.form)
+        
       if(this.dataMode == 'edit'){
+        // 当前为编辑模式
         editTableList(this.form).then(response => {
           //刷新表格 
           this.currentPage = 1
           this.loadingTable(this.currentLevelTwoId)
         })   
       }else {
-        addTableList(this.form).then(response => {
-          //刷新表格 
-          this.currentPage = 1
-          this.loadingTable(this.currentLevelTwoId)
-        })  
+        // 当前为添加模式
+        if(this.levelNum == 'one'){
+          addlevelOneData({name:this.form.name,icon:this.form.icon,attr:0}).then(responce => {
+            // 刷新列表
+            this.loadingOneLevel()
+            this.$message({
+              type: 'success',
+              message: '操作成功' 
+            })
+          })
+        }else if(this.levelNum == 'two'){
+          addlevelTwoData({ name:this.form.name,icon:this.form.icon, attr:this.currentLevelOneId }).then(responce => {
+            // 刷新列表
+           this.loadingTwoLevel(this.currentLevelOneId)
+            this.$message({
+              type: 'success',
+              message: '操作成功' 
+            })
+          })
+        }else{
+          this.$message({
+            type: 'error',
+            message: '未知错误'
+          });       
+        }
+        // addTableList(this.form).then(response => {
+        //   //刷新表格 
+        //   this.currentPage = 1
+        //   this.loadingTable(this.currentLevelTwoId)
+        // })  
       }
     }
   },

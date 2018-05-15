@@ -17,13 +17,18 @@
             <el-form-item label="服务描述：" class="width100" prop="serviceDescr">
               <el-input v-model="serviceInfo.serviceDescr" type="textarea" placeholder="请输入服务描述"></el-input>
             </el-form-item>
+            <el-form-item label="服务调用方式：" class="width50" prop="methodType">
+                <el-select v-model="serviceInfo.ServiceInvocationMode" placeholder="请选择">
+                    <el-option v-for="item in dictList" v-if="item.parentCode =='001'" 
+                    :key="item.dictCode" :label="item.dictName" :value="item.dictCode"></el-option>
+                </el-select>
+            </el-form-item>
             <el-form-item label="服务调用路径：" class="width50" prop="url">
               <el-input v-model="serviceInfo.url" placeholder="请输入调用路径" ></el-input>
             </el-form-item>
             <el-form-item label="输入参数：" class="width50" prop="in_arg">
               <el-input v-model="serviceInfo.in_arg" placeholder="请输入输入参数"></el-input>
             </el-form-item>
-      
             <el-form-item label="banner路径：" class="width50">
               <el-input v-model="serviceInfo.banner" placeholder="请输入服务调用路径" ></el-input>
             </el-form-item>
@@ -46,9 +51,9 @@
                 <el-option v-for="item in academyProfessorList" :label="item.professorName" :key="item.id" :value="item.id"></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="课题组／研究方向：" class="width50">
-              <el-select v-model="serviceInfo.groupName" placeholder="请选择">
-                <el-option v-for="item in academyGroupList" :label="item.groupName" :key="item.groupid" :value="item.groupid"></el-option>
+            <el-form-item label="课题组／研究方向：" class="width50" prop="groupId">
+              <el-select v-model="serviceInfo.groupId" placeholder="请选择">
+                <el-option v-for="item in academyGroupList" :label="item.groupName" :key="item.groupId" :value="item.groupId"></el-option>
               </el-select>
             </el-form-item>
             <h5 class="customModeTitle text_center">自定义模式</h5>
@@ -91,7 +96,8 @@
 </template>
 <script>
 import { academyList, academyGroupList,
- academyProfessorList, dictList, addService ,getServiceInfo, updataServiceInfo} from '@/api/service.js'
+ academyProfessorList, addService ,getServiceInfo, updataServiceInfo} from '@/api/service.js'
+import { dictList } from '@/api/common'
 export default {
     props:[
         'currentNode',//当前分类信息
@@ -111,10 +117,12 @@ export default {
                 serviceIcon:'',
                 serviceState:'',
                 // academyName:'',
+                ServiceInvocationMode:'',
                 academyId:'',
                 // professorName:'',
+                methodType:'',
                 professorId:'',
-                groupName:"",
+                groupId:'',
                 relates:[
                     {
                         relateType:'',
@@ -139,8 +147,9 @@ export default {
                 // academyName:'',
                 academyId:'',
                 // professorName:'',
+                methodType:'',
                 professorId:'',
-                groupName:"",
+                groupId:"",
                 relates:[
                     {
                         relateType:'',
@@ -166,6 +175,9 @@ export default {
                 ],
                 className:[
                     { required: true, message: '请选择所属类型', trigger: 'change' }
+                ],
+                ServiceInvocationMode:[
+                    { required: true, message: '请选择服务调用方式', trigger: 'change' }                     
                 ],
                 url: [
                     { required: true, message: '请选择服务调用路径', trigger: 'change' }
@@ -221,7 +233,8 @@ export default {
                 if (valid) {
                     // alert('submit!');
                     if(this.type == 1){
-                        this.serviceInfo.serviceId = this.$store.state.service.serviceId
+                        // this.serviceInfo.serviceId = this.$store.state.service.serviceId
+                        this.serviceInfo.id = this.$store.state.service.serviceId
                         updataServiceInfo(this.serviceInfo).then(reponse => {
                             
                             console.log(this.$store.state)
@@ -264,11 +277,13 @@ export default {
         // 改变所属学校 级联更改所有者和课题组／研究方向
         changeAcademy(val){
            // 课题组／研究方向
-            academyGroupList({id:val}).then(response => {
+            academyGroupList({id:val}).then(response => {  
+                this.serviceInfo.groupId = ''
                 this.academyGroupList = response.data
             })
             // 所有者
-            academyProfessorList({id:val}).then(response => {
+            academyProfessorList({academyId:val}).then(response => {
+                this.serviceInfo.professorId = ''
                 this.academyProfessorList = response.data
             })
         }
@@ -286,10 +301,20 @@ export default {
         console.log(this.type)
         if(this.type == 1){
             getServiceInfo({serviceId:this.$store.state.service.serviceId}).then(response =>{
+                // 课题组／研究方向
+                academyGroupList({id:response.data.academyId}).then(response => {  
+                    this.academyGroupList = response.data
+                })
+                 // 所有者
+                academyProfessorList({academyId:response.data.academyId}).then(response => {
+                    this.academyProfessorList = response.data
+                })
+                if(!response.data.groupId){
+                    response.data.groupId = ''
+                }
                 this.serviceInfo = response.data
                 console.log(this.serviceInfo)
                 
-                this.changeAcademy(this.serviceInfo.academyId)
             })
         }else{
             this.serviceInfo =this.initServiceInfo
