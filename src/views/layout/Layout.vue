@@ -26,6 +26,9 @@ export default {
     sidebar() {
       return this.$store.state.app.sidebar
     }
+  },
+  mounted () {
+     this.$store.dispatch('UpdateDictList').then((res)=>{})
   }
 }
 </script>

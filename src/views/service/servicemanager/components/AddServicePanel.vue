@@ -15,10 +15,13 @@
               <el-input v-model="serviceInfo.className" disabled></el-input>
             </el-form-item>
             <el-form-item label="服务描述：" class="width100" prop="serviceDescr">
-              <el-input v-model="serviceInfo.serviceDescr" type="textarea" placeholder="请输入服务描述"></el-input>
+              <el-input v-model="serviceInfo.serviceDescr" :autosize="{ minRows: 2, maxRows: 6}" type="textarea" placeholder="请输入服务描述"></el-input>
+            </el-form-item>
+            <el-form-item label="输入参数：" class="width100" prop="in_arg">
+              <el-input v-model="serviceInfo.in_arg" :autosize="{ minRows: 2, maxRows: 6}" type="textarea" placeholder="请输入输入参数"></el-input>
             </el-form-item>
             <el-form-item label="服务调用方式：" class="width50" prop="methodType">
-                <el-select v-model="serviceInfo.ServiceInvocationMode" placeholder="请选择">
+                <el-select v-model="serviceInfo.methodType" placeholder="请选择">
                     <el-option v-for="item in dictList" v-if="item.parentCode =='001'" 
                     :key="item.dictCode" :label="item.dictName" :value="item.dictCode"></el-option>
                 </el-select>
@@ -26,9 +29,7 @@
             <el-form-item label="服务调用路径：" class="width50" prop="url">
               <el-input v-model="serviceInfo.url" placeholder="请输入调用路径" ></el-input>
             </el-form-item>
-            <el-form-item label="输入参数：" class="width50" prop="in_arg">
-              <el-input v-model="serviceInfo.in_arg" placeholder="请输入输入参数"></el-input>
-            </el-form-item>
+            
             <el-form-item label="banner路径：" class="width50">
               <el-input v-model="serviceInfo.banner" placeholder="请输入服务调用路径" ></el-input>
             </el-form-item>
@@ -37,7 +38,7 @@
             </el-form-item>
             <el-form-item label="服务状态：" class="width50" prop="serviceState">
                 <el-select v-model="serviceInfo.serviceState" placeholder="请选择">
-                    <el-option v-for="item in dictList" v-if="item.parentCode =='003'" 
+                    <el-option v-for="item in dictList" v-if="item.parentCode =='003' && item.dictCode != '003000'" 
                     :key="item.dictCode" :label="item.dictName" :value="item.dictCode"></el-option>
                 </el-select>
             </el-form-item>
@@ -86,7 +87,7 @@
           </el-form>
         </el-row>
         <el-row>
-          <el-button type="text" v-if="type == 1" v-on:click ="addServerInfo">编辑接入信息</el-button>
+          <el-button type="text" v-if="type == 1" v-on:click="addServerInfo">编辑接入信息</el-button>
         </el-row>
         <el-row class="text_center">
           <el-button type="primary" @click="submitForm('ruleForm')">确定</el-button>
@@ -95,8 +96,7 @@
     </div>
 </template>
 <script>
-import { academyList, academyGroupList,
- academyProfessorList, addService ,getServiceInfo, updataServiceInfo} from '@/api/service.js'
+import { academyList, academyGroupList, academyProfessorList, addService ,getServiceInfo, updataServiceInfo} from '@/api/service.js'
 import { dictList } from '@/api/common'
 export default {
     props:[
@@ -176,7 +176,7 @@ export default {
                 className:[
                     { required: true, message: '请选择所属类型', trigger: 'change' }
                 ],
-                ServiceInvocationMode:[
+                methodType:[
                     { required: true, message: '请选择服务调用方式', trigger: 'change' }                     
                 ],
                 url: [
@@ -314,10 +314,11 @@ export default {
                 }
                 this.serviceInfo = response.data
                 console.log(this.serviceInfo)
-                
+                this.$store.dispatch('SetHasServerEntry', response.data.hasServerEntry)
             })
         }else{
             this.serviceInfo =this.initServiceInfo
+            this.$store.dispatch('SetHasServerEntry', false)
         }
     }
 }

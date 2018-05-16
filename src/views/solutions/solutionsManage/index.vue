@@ -12,13 +12,14 @@
     <br />
     <br />
     <el-table :data="tableData"  border style="width: 100%" v-loading="loading" >
-      <el-table-column prop="academyId" label="序号" type='index' align="center" width="50"> </el-table-column>
-      <el-table-column prop="academyName" label="机构名称" min-width="160"> </el-table-column>
-
-      <el-table-column prop="academyDesc" label="描述" min-width="280"> </el-table-column>
-      <el-table-column prop="academyPhone" label="联系人电话" min-width="150"> </el-table-column>
-      <el-table-column prop="academyURL" label="访问地址" min-width="150"> </el-table-column>
-      <el-table-column prop="createTime" label="创建时间" min-width="150"> </el-table-column>
+      <el-table-column prop="solutionId" label="序号" type='index' align="center" width="50"> </el-table-column>
+      <el-table-column prop="solutionName" label="标题" min-width="160"> </el-table-column>
+      <el-table-column prop="solutionDesc" label="描述" min-width="280"> </el-table-column>
+      <el-table-column prop="solutionIcon" label="图片" min-width="150"> </el-table-column>
+      <el-table-column prop="academyName" label="机构名称" min-width="150"> </el-table-column>
+      <el-table-column prop="forwardType" label="跳转方式" min-width="150" :formatter="transferforwardType"> </el-table-column>
+      <el-table-column prop="acceptTime" label="接入时间" min-width="150"> </el-table-column>
+      <el-table-column prop="solutionUrl" label="访问路径" min-width="150"> </el-table-column>
       <el-table-column label="操作" width="90" fixed='right'>
         <template slot-scope="scope">
             <el-button @click="deleteRowData(scope.row)" type="text" size="small">删除</el-button>
@@ -37,16 +38,34 @@
         :total="totalNumber">
         </el-pagination>
     </div> 
-    <el-dialog :title="mode=='add'?'添加机构':'编辑机构'" :visible.sync="dialogFormVisible" width="40%">
+    <el-dialog :title="mode=='add'?'添加':'机构'" :visible.sync="dialogFormVisible" width="40%">
       <el-form :model="form" ref="ruleForm">
-        <el-form-item label="机构名称:" label-width="180px" prop="academyName" :rules="{ required: true, message: '机构名称不能为空', trigger: 'blur'}">
-          <el-input v-model="form.academyName" auto-complete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="机构描述:" label-width="180px">
-          <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 6}" :rows="2" v-model="form.academyDesc" auto-complete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="访问路径:" label-width="180px">
-          <el-input v-model="form.academyURL" auto-complete="off"></el-input>
+        <el-form-item 
+         v-for="(item,index) in formData" :key="index" 
+         :label="item.name+':'" 
+         :label-width="item.labelWidth" 
+         :prop="item.prop" 
+         :rules="item.rules">   
+          <el-input v-if="item.isInput" v-model="form[item.prop]" auto-complete="off"></el-input>
+          <el-input v-if="item.isTextarea" type="textarea" :autosize="{ minRows: 2, maxRows: 6}" :rows="2" v-model="form[item.prop]" auto-complete="off"></el-input>
+          <el-select v-if="item.isSelect" v-model="form[item.prop]" placeholder="请选择">
+           
+              <el-option 
+                v-if="item.isAcademy"
+                v-for="child in academyList"
+                :key="child.id" :label="child.academyName" 
+                :value="child.id">
+              </el-option>
+              <template v-if="item.isDict">
+              <el-option 
+                v-for="child in dictList" v-if="child.parentCode ==item.parentCode" 
+                :key="child.dictCode" :label="child.dictName" 
+                :value="child.dictCode">
+              </el-option>
+              </template>
+              
+    
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -54,12 +73,18 @@
         <el-button type="primary" @click="submitForm('ruleForm')">确 定</el-button>
       </div>
     </el-dialog>
-
   </div>
 </template>
 <script>
-import { getSchoolsList, addAcademy, updateAcademy, delAcademy } from '@/api/systemManager/organization'
+import { solutionList, addSolution, delSolution, updateSolution } from '@/api/solutions/solutionsManage'
+import { getSchoolsList } from '@/api/systemManager/organization'
+import { mapGetters } from 'vuex'
 export default {
+  computed: {
+    ...mapGetters([
+      'dictList'
+    ])
+  },
   data () {
     return {
       searchKey:null,
@@ -71,18 +96,111 @@ export default {
       mode:'add',
       dialogFormVisible:false ,
       form:{
-        academyName:'',
-        academyDesc:"",
-        academyURL:''
+        academyId:"",
+        academyName:"",
+        acceptTime:"",
+        forwardType: "",
+        solutionDesc:"",
+        solutionIcon:"",
+        solutionId:'',
+        solutionName : "",
+        solutionUrl:"",
       },
+      
       initForm:{
-        academyName:'',
-        academyDesc:"",
-        academyURL:''
+        academyId:"",
+        academyName:"",
+        acceptTime:"",
+        forwardType: "",
+        solutionDesc:"",
+        solutionIcon:"",
+        solutionId:'',
+        solutionName : "",
+        solutionUrl:"",
       },
+      formData:[
+        {
+          name:'标题',
+          prop:'solutionName',
+          rules:{ required: true, message: '标题不能为空', trigger: 'blur'},
+          labelWidth: '180px',
+          isInput: true,
+          isTextarea: false,
+        },
+        {
+          name:'描述',
+          prop:'solutionDesc',
+          labelWidth:'180px',
+          isInput:true,
+          isTextarea:false,
+        },
+        {
+          name:'图片',
+          prop:'solutionIcon',
+          labelWidth:'180px',
+          isInput:true,
+          isTextarea:false,
+        },
+        {
+          name:'机构名称',
+          prop:'academyId',
+          labelWidth:'180px',
+          isInput:false,
+          isTextarea:false,
+          isSelect:true,
+          isDict:false,
+          isAcademy:true
+        },
+        {
+          name:'访问路径',
+          prop:'solutionUrl',
+          labelWidth:'180px',
+          isInput:true,
+          isTextarea:false,
+        },
+        // {
+        //   name:'机构名称',
+        //   prop:'academyName',
+        //   labelWidth:'180px',
+        //   isInput:true,
+        //   isTextarea:false,
+        // },
+       
+        {
+          name:'跳转方式',
+          prop:'forwardType',
+          labelWidth:'180px',
+          isDict:true,
+          isAcademy:false,
+          parentCode:'011',
+          isInput:false,
+          isTextarea:false,
+          isSelect:true
+        },
+        {
+          name:'接入时间',
+          prop:'acceptTime',
+          labelWidth:'180px',
+          isInput:true,
+          isTextarea:false,
+        }
+      ],
+      // dictList:'',
+      academyList:''
     }
   },
   methods:{
+    transferforwardType(row){
+      if(!row.forwardType){
+        return ''
+      } 
+      for (let i =0;i<this.dictList.length;i++){
+        if(this.dictList[i].dictCode == row.forwardType){
+          return this.dictList[i].dictName
+        }
+      }
+      return ''
+    },
     // 查询
     querySearch(){
       console.log("===================查询关键字======================")
@@ -109,7 +227,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        delAcademy({id:row.id}).then(response => {
+        delSolution({solutionId:row.solutionId}).then(response => {
           // 刷新表格
           this.loadingTableData()
           this.$message({
@@ -127,7 +245,8 @@ export default {
     },
     editRowData(mode,row) {     
       console.log(row)
-      this.form =row
+      // row.academyId =row.academyId + 0
+      this.form = row
       this.mode = mode
       this.dialogFormVisible = true
     },
@@ -138,7 +257,7 @@ export default {
       this.dialogFormVisible = true
     },
     loadingTableData(){
-      getSchoolsList ({pageNow:this.currentPage,pageSize:this.pageSize,keyword:this.searchKey}).then(response => {
+      solutionList ({pageNow:this.currentPage,pageSize:this.pageSize,keyword:this.searchKey}).then(response => {
         this.tableData = response.data
         this.totalNumber =response.total
       })
@@ -153,22 +272,22 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           if(this.mode == 'add'){
-            addAcademy(this.form).then(response => {
+            addSolution(this.form).then(response => {
               // 刷新表格
               this.loadingTableData()
               this.closeDialog()
               this.$message({
-                message: '保存机构成功！',
+                message: '保存成功！',
                 type: 'success'
               })       
             })
           }else{
-            updateAcademy(this.form).then(response => {
+            updateSolution(this.form).then(response => {
               // 刷新表格
               this.loadingTableData()
               this.closeDialog()
               this.$message({
-                message: '保存机构成功！',
+                message: '保存成功！',
                 type: 'success'
               })       
             })
@@ -182,6 +301,11 @@ export default {
   },
   mounted (){
     this.loadingTableData()
+    // this.dictList = this.$store.state.app.dictList
+    // console.log(this.$store.state.app)
+    getSchoolsList().then( res => {
+      this.academyList = res.data
+    })
   }
 }
 </script>

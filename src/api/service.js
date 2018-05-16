@@ -45,7 +45,7 @@ export function getServiceInfo(params){
   })
 }
 
-// 保存新增接入信息接口 /entry/ServiceEntry/add
+// 保存新增信息接口 /entry/ServiceEntry/add
 export function addServer(params){
   return request({
     url:'entry/ServiceEntry/add',
@@ -55,14 +55,7 @@ export function addServer(params){
 }
 
 
-// 获取服务接入信息接口  serviceId  (谷跃飞)
-export function serviceEntryInfo(params){
-  return request({
-    url:'entry/serviceEntryInfo',
-    method:'post',
-    params
-  })
-}
+
 
 // 保存编辑服务信息接口   (谷跃飞)
 export function updataServiceInfo(params){
@@ -73,14 +66,6 @@ export function updataServiceInfo(params){
   })
 }
 
-// 保存编辑服务接入信息接口  serviceId  (谷跃飞)
-export function updateServiceEntryInfo(params){
-  return request({
-    url:'entry/update/serviceEntry',
-    method:'post',
-    params
-  })
-}
 
 
 // // 删除服务接口 （谷跃飞）

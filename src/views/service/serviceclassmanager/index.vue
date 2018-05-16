@@ -63,7 +63,7 @@
           <el-input v-model="form.leaf" auto-complete="off"></el-input>
         </el-form-item>
         <el-form-item label="p_id" :label-width="formLabelWidth">
-          <el-input v-model="form.p_id" auto-complete="off" :disabled="dataMode == 'add'"></el-input>
+          <el-input v-model="form.p_id" auto-complete="off" disabled></el-input>
         </el-form-item>
         <el-form-item label="rec_num" :label-width="formLabelWidth">
           <el-input v-model="form.rec_num" auto-complete="off"></el-input>

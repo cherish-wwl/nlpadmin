@@ -32,13 +32,12 @@
           <br />
           <el-table :data="tableData"  border style="width: 100%" v-loading="loading" >
              <el-table-column prop="name" label="name" width='100'> </el-table-column>
-              <el-table-column prop="type_name" label="type_name" width='100'> </el-table-column>
+              <!-- <el-table-column prop="type_name" label="type_name" width='100'> </el-table-column> -->
               <el-table-column prop="image" label="image" width='100'> </el-table-column>
               <el-table-column prop="size" label="size" width='100'> </el-table-column>
               <el-table-column prop="uploader" label="uploader" width='100'> </el-table-column>
               <el-table-column prop="introduce" label="introduce" width='500'> </el-table-column>
               <el-table-column prop="format" label="format" width='100'> </el-table-column>
-              <el-table-column prop="type" label="type" width='100'> </el-table-column>
               <el-table-column prop="attr" label="attr" width='100'> </el-table-column>
               <el-table-column prop="url" label="url" width='300'> </el-table-column>
               <el-table-column label="操作" width="90" fixed="right">
@@ -63,14 +62,24 @@
         </el-col>
     </el-row>
     <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible">
-      <el-form :model="form">
-        <el-form-item v-for="(key,index) in form" :key='index'  :label='index' :label-width="formLabelWidth">
-             <el-input :type="index=='introduce' ? 'textarea' : ''" auto-complete="off" v-model="form[index]"></el-input>
+      <el-form :model="form" ref="ruleForm">
+        <el-form-item 
+         v-for="(item,index) in formData" :key="index" 
+         :label="item.name+':'" 
+         :label-width="item.labelWidth" 
+         :prop="item.prop" 
+         :rules="item.rules">   
+          <el-input v-if="item.isInput" v-model="form[item.prop]" auto-complete="off"></el-input>
+          <el-input v-if="item.isTextarea" type="textarea" :autosize="{ minRows: 2, maxRows: 6}" :rows="2" v-model="form[item.prop]" auto-complete="off"></el-input>
+          <el-select v-if="item.isSelect" v-model="form[item.prop]" placeholder="请选择">
+             <el-option v-for="child in dictList" v-if="child.parentCode ==item.parentCode" 
+                    :key="child.dictCode" :label="child.dictName" :value="child.dictCode"></el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="submitForm('form')" >确 定</el-button>
+        <el-button type="primary" @click="submitForm('ruleForm')" >确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -99,26 +108,7 @@ export default {
       dialogFormVisible:false,
       dialogTitle:'添加数据',   
       form:{},
-      initForm:{
-        "name":'',
-        //"type_name":"",
-        "image":"",
-        "size":"",
-        "uploader":"",
-        "introduce":"",
-        "format":"",
-        // "id":"",
-        //"type":"",
-        //"attr":"",
-        "url":"",
-       
-      },
-      
-      classForm:{
-        name:'',
-        icon:''
-      },
-    
+      formData:'',
       dataMode:"add",
       levelNum:'one',
       formLabelWidth: '120px'
@@ -140,18 +130,133 @@ export default {
     addRowData(){
       this.dialogFormVisible = true
       this.dialogTitle = '添加数据'
-     
-      this.form = this.initForm
-      this.form.attr = this.currentLevelOneId
-      this.form.type = this.currentLevelTwoId
+      let formData =
+        [ 
+          {name:'名称',
+          prop:'name',
+          rules:[
+            { required: true, message: '名称不能为空', trigger: 'blur'},
+            { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+          ],
+          labelWidth:'180px',
+          isInput:true,
+          isTextarea:false,
+          },
+          {name:'图片',
+           prop:'image',
+           labelWidth:'180px',
+           isInput:true,
+           isTextarea:false,
+          },
+          {name:'uploader',
+           prop:'uploader',
+           labelWidth:'180px',
+           isInput:true,
+           isTextarea:false,
+          },
+          {name:'size',
+           prop:'size',
+           labelWidth:'180px',
+           isInput:true,
+           isTextarea:false,
+          },
+          {name:'introduce',
+           prop:'introduce',
+           labelWidth:'180px',
+           isInput:true,
+           isTextarea:false,
+          },
+          {name:'format',
+           prop:'format',
+           labelWidth:'180px',
+           isInput:true,
+           isTextarea:false,
+          },
+          {name:'url',
+           prop:'url',
+           labelWidth:'180px',
+           isInput:true,
+           isTextarea:false,
+          },
+        ]
+      this.form = {
+        "name":'',
+        // "type_name":"",
+        "image":"",
+        "size":"",
+        "uploader":"",
+        "introduce":"",
+        "format":"",
+        "id":"",
+        "typeId": this.currentLevelTwoId,
+        "attr":this.currentLevelOneId,
+        "url":"", 
+      },
+      this.formData = formData
+      this.levelNum = 'three'
       this.dataMode = 'add'
     },
     editRowData(row){
+
       console.log( row )
       this.dialogFormVisible = true
       this.dialogTitle = '编辑数据'
-      this.form = row
+      let formData =
+        [ 
+          {name:'名称',
+          prop:'name',
+          rules:[
+            { required: true, message: '名称不能为空', trigger: 'blur'},
+            { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+          ],
+          labelWidth:'180px',
+          isInput:true,
+          isTextarea:false,
+          },
+          {name:'图片',
+           prop:'image',
+           labelWidth:'180px',
+           isInput:true,
+           isTextarea:false,
+          },
+          {name:'uploader',
+           prop:'uploader',
+           labelWidth:'180px',
+           isInput:true,
+           isTextarea:false,
+          },
+          {name:'size',
+           prop:'size',
+           labelWidth:'180px',
+           isInput:true,
+           isTextarea:false,
+          },
+          {name:'introduce',
+           prop:'introduce',
+           labelWidth:'180px',
+           isInput:true,
+           isTextarea:false,
+          },
+          {name:'format',
+           prop:'format',
+           labelWidth:'180px',
+           isInput:true,
+           isTextarea:false,
+          },
+          {name:'url',
+           prop:'url',
+           labelWidth:'180px',
+           isInput:true,
+           isTextarea:false,
+          },
+        ]
      
+     
+     
+      this.form = row
+      this.formData = formData
+      this.levelNum = 'three'
+      
       this.dataMode = 'edit'
     },
     LevelOneClick( id ) {
@@ -189,49 +294,60 @@ export default {
         this.dialogFormVisible = true
         this.dialogTitle = '添加'
         this.levelNum = level
-        this.form = this.classForm    
+        this.dataMode="add"
+        let formData =
+        [ 
+          {name:'名称',
+          prop:'name',
+          rules:[
+            { required: true, message: '名称不能为空', trigger: 'blur'},
+            { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+          ],
+          labelWidth:'180px',
+          isInput:true,
+          isTextarea:false,
+          },
+          {name:'图标',
+           prop:'icon',
+           labelWidth:'180px',
+           isInput:true,
+           isTextarea:false,
+          },
+        ]
+        let form = {
+          name:'',
+          icon:''
+        }
+        this.form = form
+        this.formData= formData
     },
     editClick ( item, level ) {
       console.log( item )
-      this.$prompt('请输入名称', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputPlaceholder:item.name
-      }).then(({ value }) => {
-        if( value == '' ||value == null){
-          return false
-        }
-        if( level == "one" ){
-          editlevelOneData({ id:item.id,name:value,attr:0}).then(responce=>{
-            // 刷新列表
-            this.loadingOneLevel()
-            this.$message({
-              type: 'success',
-              message: '操作成功' 
-            })
-          })
-        }else if( level == "two"){
-          editlevelTwoData({ id:item.id,name:value,attr: this.currentLevelOneId}).then(responce=>{
-            // 刷新列表
-            this.loadingTwoLevel(this.currentLevelOneId)
-            this.$message({
-              type: 'success',
-              message: '操作成功' 
-            })
-          })
-        }else {
-          this.$message({
-            type: 'error',
-            message: '未知错误'
-          })
-        }
-        
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '取消输入'
-        });       
-      })
+      this.dialogFormVisible = true
+      this.dialogTitle = '编辑'
+      this.levelNum = level
+      this.dataMode="edit"
+      let formData =
+        [ 
+          {name:'名称',
+          prop:'name',
+          rules:[
+            { required: true, message: '名称不能为空', trigger: 'blur'},
+            { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+          ],
+          labelWidth:'180px',
+          isInput:true,
+          isTextarea:false,
+          },
+          {name:'图标',
+           prop:'icon',
+           labelWidth:'180px',
+           isInput:true,
+           isTextarea:false,
+          },
+        ]
+        this.form = item
+        this.formData= formData
     },
     deleteClick ( item, level ) {
       this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
@@ -330,48 +446,90 @@ export default {
       })
     },
     submitForm(formName) {
-      this.dialogFormVisible = false
-      console.log(this.form)
-        
-      if(this.dataMode == 'edit'){
-        // 当前为编辑模式
-        editTableList(this.form).then(response => {
-          //刷新表格 
-          this.currentPage = 1
-          this.loadingTable(this.currentLevelTwoId)
-        })   
-      }else {
-        // 当前为添加模式
-        if(this.levelNum == 'one'){
-          addlevelOneData({name:this.form.name,icon:this.form.icon,attr:0}).then(responce => {
-            // 刷新列表
-            this.loadingOneLevel()
-            this.$message({
-              type: 'success',
-              message: '操作成功' 
-            })
-          })
-        }else if(this.levelNum == 'two'){
-          addlevelTwoData({ name:this.form.name,icon:this.form.icon, attr:this.currentLevelOneId }).then(responce => {
-            // 刷新列表
-           this.loadingTwoLevel(this.currentLevelOneId)
-            this.$message({
-              type: 'success',
-              message: '操作成功' 
-            })
-          })
-        }else{
-          this.$message({
-            type: 'error',
-            message: '未知错误'
-          });       
+    
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+           
+          if(this.dataMode == 'edit'){
+            // 当前为编辑模式
+            if(this.levelNum == 'one'){
+              console.log("一级编辑保存")
+              editlevelOneData(this.form).then(responce=>{
+                // 刷新列表
+                this.loadingOneLevel()
+                this.$message({
+                  type: 'success',
+                  message: '操作成功' 
+                })
+              })
+            }else if(this.levelNum == 'two'){
+              console.log("二级编辑保存")
+              editlevelTwoData( this.form).then(responce=>{
+                // 刷新列表
+                this.loadingTwoLevel(this.currentLevelOneId)
+                this.$message({
+                  type: 'success',
+                  message: '操作成功' 
+                })
+              })
+            }
+            else if(this.levelNum == 'three'){
+              console.log("三级编辑保存")
+              editTableList(this.form).then(response => {
+                //刷新表格 
+                this.currentPage = 1
+                this.loadingTable(this.currentLevelTwoId)
+              })  
+            }else{
+              this.$message({
+                type: 'error',
+                message: '未知错误'
+              });       
+            }
+            
+          }else {
+            // 当前为添加模式
+            if(this.levelNum == 'one'){
+              console.log("一级添加保存")
+              addlevelOneData({name:this.form.name,icon:this.form.icon,attr:0}).then(responce => {
+                // 刷新列表
+                this.loadingOneLevel()
+                this.$message({
+                  type: 'success',
+                  message: '操作成功' 
+                })
+              })
+            }else if(this.levelNum == 'two'){
+              console.log("二级添加保存")
+              addlevelTwoData({ name:this.form.name,icon:this.form.icon, attr:this.currentLevelOneId }).then(responce => {
+                // 刷新列表
+              this.loadingTwoLevel(this.currentLevelOneId)
+                this.$message({
+                  type: 'success',
+                  message: '操作成功' 
+                })
+              })
+            }else if(this.levelNum == 'three'){
+              console.log("三级添加保存")
+              addTableList(this.form).then(response => {
+                //刷新表格 
+                this.currentPage = 1
+                this.loadingTable(this.currentLevelTwoId)
+              })  
+            }else{
+              this.$message({
+                type: 'error',
+                message: '未知错误'
+              });       
+            }
+            
+          }
+          this.dialogFormVisible = false
+        }else {
+          console.log('error submit!!');
+          return false;
         }
-        // addTableList(this.form).then(response => {
-        //   //刷新表格 
-        //   this.currentPage = 1
-        //   this.loadingTable(this.currentLevelTwoId)
-        // })  
-      }
+      })
     }
   },
   mounted () {

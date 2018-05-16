@@ -10,8 +10,6 @@
                     :key="item.dictCode" :label="item.dictCode" >
                     {{ item.dictName }}
                     </el-radio>
-                    <!-- <el-radio label="提供URL"></el-radio>
-                    <el-radio label="部署在我方服务器"></el-radio> -->
                 </el-radio-group>
             </el-form-item>
             <el-form-item label="接入状态：" class="width50" prop="accessState">
@@ -20,20 +18,21 @@
                 :key="item.dictCode" :label="item.dictName" :value="item.dictCode"></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="项目类型：" class="width50" prop="accessType">
-              <el-select  placeholder="请选择" v-model="serverInfo.accessType">
+            <!-- <el-form-item label="项目类型：" class="width50" prop="accessType" >
+              <el-select  placeholder="请选择" v-model="serverInfo.accessType" :disabled='isEditMode'>
                  <el-option v-for="item in dictList" v-if="item.parentCode =='007'" 
                 :key="item.dictCode" :label="item.dictName" :value="item.dictCode"></el-option>
               </el-select>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="开发模式：" class="width50" prop="accessModel">
               <el-select  placeholder="请选择" v-model="serverInfo.accessModel">
                 <el-option v-for="item in dictList" v-if="item.parentCode =='008'" 
                 :key="item.dictCode" :label="item.dictName" :value="item.dictCode"></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="服务器信息：" class="width100" prop="serverId">
+            <el-form-item label="服务器信息：" class="width100" prop="serverId" >
                 <el-table
+                 ref="singleTable"
                 :data="tableData"
                 highlight-current-row
                 @current-change="handleCurrentChange"
@@ -44,14 +43,14 @@
                     type="index"
                     width="50">
                     </el-table-column>        
-                    <el-table-column prop="innerIp"  label="innerIp"  width="180"> </el-table-column>
+                    <el-table-column prop="innerIP"  label="innerIP"  width="180"> </el-table-column>
                     <el-table-column prop="innerPort"  label="innerPort"  width="180"> </el-table-column>
-                    <el-table-column prop="limiteTime"  label="limiteTime"  width="180"> </el-table-column>
+                    <el-table-column prop="limitTime"  label="limitTime"  width="180"> </el-table-column>
                     <el-table-column prop="natAccount"  label="natAccount"  width="180"> </el-table-column>
                     <el-table-column prop="outerIP"  label="outerIP"  width="180"> </el-table-column>
                     <el-table-column prop="outerPort"  label="outerPort"  width="180"> </el-table-column>
                     <el-table-column prop="strategyNo"  label="strategyNo"  width="180"> </el-table-column>
-                    <el-table-column prop="REVERSE"  label="REVERSE"  width="180"> </el-table-column>
+                    <el-table-column prop="reverse"  label="reverse"  width="180"> </el-table-column>
                 </el-table>
             </el-form-item>
             <el-form-item label="部署目录：" class="width50" prop="deployPath">
@@ -81,10 +80,18 @@
     </el-dialog>
 </template>
 <script>
-    import { serviceEntryInfo, addServer, updateServiceEntryInfo} from '@/api/service.js'
-    import { getServerList } from '@/api/server.js'
-    import { dictList } from '@/api/common'
+
+    import { getServerList,addServerInfo, serviceEntryInfo, updateServiceEntryInfo } from '@/api/server.js'
+    // import { dictList } from '@/api/common'
+    import { mapGetters } from 'vuex'
     export default {
+        computed: {
+            ...mapGetters([
+            'isEditMode', 
+            'hasServerEntry' ,
+            'dictList'
+            ])
+        },
         props:["dialogFormVisible"],
         data () {
             var checkServerId = (rule, value, callback) => {
@@ -100,11 +107,22 @@
             return {
                 isVisible:this.dialogFormVisible,
                 dialogTitle:"编辑接入信息",
-                dictList:[],
+                // dictList:[],
                 serviceId:'',
                 serverInfo:{
                     accessWay:'002001',//接入类型
-                    accessType:'', 
+                    accessState:'',
+                    accessModel:'',
+                    deployPath:'',
+                    visitURL:'',
+                    contactPerson:'',
+                    contactTel:'',
+                    accessPerson:'',
+                    accessId:this.serviceId,//服务id
+                    serverId:'' //服务器id
+                },
+                initServerInfo:{
+                    accessWay:'002001',//接入类型
                     accessState:'',
                     accessModel:'',
                     deployPath:'',
@@ -116,23 +134,7 @@
                     serverId:'' //服务器id
                 },
                 currentRow:null,
-                defauleTableData: [{
-                    date: '2016-05-02',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄'
-                    }, {
-                    date: '2016-05-04',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1517 弄'
-                    }, {
-                    date: '2016-05-01',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1519 弄'
-                    }, {
-                    date: '2016-05-03',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1516 弄'
-                }],
+                defauleTableData: [],
                 tableData:[],
                 rules:this.urlRules,
                 defaultRules: {
@@ -145,9 +147,6 @@
                     serverId:[
                         { required: true, validator: checkServerId, trigger: 'change' },
                     ],
-                    accessType:[
-                        { required: true, message: '请选择项目类型', trigger: 'change' },
-                    ], 
                     accessModel:[
                         { required: true, message: '请选择开发模式', trigger: 'change' },
                     ],
@@ -175,9 +174,6 @@
                     accessModel:[
                         { required: true, message: '请选择开发模式', trigger: 'change' },
                     ],
-                    accessType:[
-                        { required: true, message: '请选择项目类型', trigger: 'change' },
-                    ], 
                     visitURL:[
                         { required: true, message: '请输入访问地址', trigger: 'blur' },
                     ],
@@ -197,18 +193,39 @@
             dialogFormVisible (val){
                 console.log("监听dialogFormVisible："+val)
                 this.isVisible = val
-                if(val) {
-                    // 获取服务接入信息
-                    serviceEntryInfo({serviceId:this.$store.state.service.serviceId}).then(response =>{
-                        if(response.data != null){
-                            this.serverInfo = response.data
-                        }
-                        
-                    })
+                // 清空表单
+                this.serverInfo = this.initServerInfo
+                console.log(this.isEditMode)
+                if(this.isEditMode && val) {
                     // 获取服务器列表
                     getServerList().then(response =>{
                         this.defauleTableData = response.data
                     })
+                    // 获取服务接入信息
+                    serviceEntryInfo({serviceId:this.$store.state.service.serviceId,accessType:this.$store.state.service.accessType}).then(response =>{   
+                        if(response.data != null){
+                            this.serverInfo = response.data 
+                            if(response.data.accessWay == "002002"){
+                                this.rules = this.defaultRules 
+                                this.tableData = this.defauleTableData
+                                this.serverInfo.visitURL=''
+                                console.log("==============编辑：初始化信息==============")
+                                for(let i=0; i<this.defauleTableData.length; i++){
+                                    if(this.defauleTableData[i].id == response.data.serverId){
+                                        console.log(this.defauleTableData[i])
+                                        this.$refs.singleTable.setCurrentRow(this.defauleTableData[i]);
+                                    }
+                                }
+                            }else{
+                                this.rules = this.urlRules
+                                this.tableData = []
+                                this.serverInfo.serverId=''
+                                this.serverInfo.deployPath=''
+                            }
+                            
+                        }  
+                    })
+                    
                 }
             },
             isVisible(val) {
@@ -216,19 +233,24 @@
             }
         },
         methods:{
+            // 改变接入方式
             changeAccessWay (val) {        
                 if(val == "002002"){
                     // 需要部署服务
                     this.rules = this.defaultRules 
                     this.tableData = this.defauleTableData
+                    this.serverInfo.visitURL=''
                 }else{
                     this.rules = this.urlRules
                     this.tableData = []
+                    this.serverInfo.serverId=''
+                    this.serverInfo.deployPath=''
                 }
-                // 表单重置
-                this.$refs['ruleForm'].resetFields()
+               
                 this.serverInfo.accessWay = val
-            
+                this.serverInfo.accessType = this.$store.state.service.accessType
+                 // 表单清空验证
+                this.$refs['ruleForm'].clearValidate()
             },
             closeDialog(val){
                 this.isVisible = false
@@ -243,15 +265,16 @@
             submitForm (formName){
                 // 提交接入信息
                 console.log("+++++++++++++++++++保存接入信息+++++++++++++++++++++")
-                console.log(this.$store.state.service.serviceId)
-                console.log(this.$store.state.service.isEditMode)
-                
+                // console.log(this.$store.state.service.serviceId)
+                // console.log(this.$store.state.service.isEditMode)
+                console.log(this.hasServerEntry)
                 this.serverInfo.accessId = this.$store.state.service.serviceId
                 console.log(this.serverInfo)
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         // alert('submit!');
-                        if(this.$store.state.service.isEditMode){
+                        if(this.$store.state.service.isEditMode && this.hasServerEntry){
+                            // alert("update")
                             updateServiceEntryInfo(this.serverInfo).then(response =>{
                                 this.$message({
                                     message: '保存接入信息成功！',
@@ -261,7 +284,8 @@
                                 this.$emit("returnBack")
                             })
                         }else{
-                            addServer(this.serverInfo).then(response =>{
+                            // alert("add")
+                            addServerInfo(this.serverInfo).then(response =>{
                                 this.$message({
                                     message: '保存接入信息成功！',
                                     type: 'success'
@@ -282,10 +306,10 @@
             // 默认验证规则
             this.rules = this.urlRules
             console.log(this.dialogFormVisible)
-            // 获取字典表所有数据
-            dictList().then(response => {
-                this.dictList = response.data
-            })
+            // // 获取字典表所有数据
+            // dictList().then(response => {
+            //     this.dictList = response.data
+            // })
             
           
         }

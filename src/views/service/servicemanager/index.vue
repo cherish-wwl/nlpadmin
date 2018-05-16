@@ -13,7 +13,7 @@
         </el-tree>
       </div>
     </el-col>
-    <el-col :span="19">
+    <el-col :span="19" class="right-panel">
       <div class="grid-content"  v-if="!addPanel">
         <el-input
           placeholder="请输入关键字"
@@ -30,7 +30,7 @@
           <el-table-column prop="serviceDescr" label="描述" width="250" :formatter="stringFormatter"> </el-table-column>
           <el-table-column prop="url" label="服务调用路径" min-width="150"> </el-table-column>
           
-          <el-table-column prop="in_arg" label="输入参数" min-width="150"> </el-table-column>
+          <el-table-column prop="in_arg" label="输入参数" min-width="250" :formatter="stringFormatter"> </el-table-column>
           <el-table-column prop="banner" label="banner路径" min-width="150"> </el-table-column>
           <el-table-column prop="academyName" label="所属学校" min-width="150"> </el-table-column>
           <el-table-column prop="professorName" label="所有者" min-width="150"></el-table-column>
@@ -55,7 +55,14 @@
           </el-pagination>
         </div>
       </div>
-      <add-service-panel :type="type" :current-node="nodeInfo" @returnBack="returnBack" @reloadingTable="reloadingTable" v-if="addPanel" @dialogMethod="dialogMethod"></add-service-panel>
+      <add-service-panel 
+      :type="type" 
+      :current-node="nodeInfo" 
+      @returnBack="returnBack" 
+      @reloadingTable="reloadingTable" 
+      v-if="addPanel"
+      @dialogMethod="dialogMethod">
+      </add-service-panel>
     </el-col>
     <!-- 添加服务器信息弹出框 -->
     <add-server-info :dialog-form-visible="dialogFormVisible" @returnBack="returnBack"  @dialogMethod="dialogMethod"></add-server-info>
@@ -67,12 +74,15 @@ import { getList, getServiceListById } from '@/api/table'
 import { delService } from '@/api/service'
 import { AddServicePanel, AddServerInfo} from '@/views/service/servicemanager/components'
 import { mapGetters } from 'vuex'
+
+import { subStringNoMore3line } from '@/utils/index'
 export default {
   computed: {
-    // ...mapGetters([
-    //   'serviceId',  
-    // ])
+    ...mapGetters([
+      'serviceId',  
+    ])
   },
+
   data() {
     return {  
       dialogFormVisible:false,
@@ -93,7 +103,7 @@ export default {
       currentNodeId: 0,
       nodeInfo: null,
       isLastClassify:false,
-      serviceId:''
+      // serviceId:''
     }
   },
   components:{
@@ -103,15 +113,13 @@ export default {
   methods: {
     // 字符串转换
     stringFormatter( row, column ){
-      // console.log(row)
-      // console.log(column)
-      if(row.serviceDescr.length <= 30){
-        return row.serviceDescr
-      }
-      if(row.serviceDescr != ''){
-        return row.serviceDescr.substring(0,30)+'...'
-      }
-      return ''
+      // // console.log(row)
+      // // console.log(column)
+     
+      // if(row.serviceDescr != ''){
+      //   return row.serviceDescr.substring(0,30)+'...'
+      // }
+      return subStringNoMore3line(row.serviceDescr,30)
 
     },
     // 查询
@@ -182,7 +190,7 @@ export default {
       })
      
     },
-    // 添加服务，返回，调用刷新列表
+    // 调用刷新列表
     reloadingTable(){
       console.log("++++++++++++++++添加服务，返回，调用刷新列表+++++++++++++++++++")
       this.refreshLoadingData()
@@ -207,7 +215,6 @@ export default {
             // 编辑
             // console.log(row)
             this.$store.dispatch('SetIsEditMode', true)
-            
             this.$store.dispatch('SetServiceId', row.id)
           }else{
             this.$store.dispatch('SetIsEditMode', false)
@@ -258,4 +265,11 @@ export default {
       width: 77.5%;
     }
   }
+  // .right-panel{
+  //   position: absolute;
+  //   right: 0;
+  //   bottom: 0;
+  //   overflow: auto;
+  //   top: 0;
+  // }
 </style>

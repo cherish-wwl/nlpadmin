@@ -81,8 +81,10 @@ export default {
             console.log(res)
             this.loading = false
             if(res){
-               this.$router.push({ path: '/' })
-              
+              this.$router.push({ path: '/' })
+              this.$store.dispatch('UpdateDictList').then((res)=>{
+                
+              })
             }else{
                this.$message('用户名或密码错误！');
             }

@@ -8,7 +8,7 @@ export function getServerList(params){
       params
     })
 }
-// 更新服务器信息
+// 更新服务接入信息
 export function updateServerInfo(params){
     return request({
       url:'/entry/serverport/update',
@@ -16,7 +16,15 @@ export function updateServerInfo(params){
       params
     })
 }
-// 删除服务器信息
+// 保存服务接入信息信息
+export function addServerInfo(params){
+  return request({
+    url:'/classify/service/serviceEntry/add',
+    method:'post',
+    params
+  })
+}
+// 删除服务接入信息
 export function delServerInfo(params){
     return request({
       url:'entry/server/delServer',
@@ -25,11 +33,19 @@ export function delServerInfo(params){
     })
 }
 
-// 保存服务器信息
-export function addServerInfo(params){
-    return request({
-      url:'/entry/serverport/toadd',
-      method:'post',
-      params
-    })
+// 获取服务接入信息接口  serviceId  (谷跃飞)
+export function serviceEntryInfo(params){
+  return request({
+    url:'/classify/service/serviceEntryInfo',
+    method:'post',
+    params
+  })
+}
+// 保存编辑服务接入信息接口  serviceId  (谷跃飞)
+export function updateServiceEntryInfo(params){
+  return request({
+    url:'entry/update/serviceEntry',
+    method:'post',
+    params
+  })
 }
