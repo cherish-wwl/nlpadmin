@@ -96,13 +96,20 @@
     </div>
 </template>
 <script>
-import { academyList, academyGroupList, academyProfessorList, addService ,getServiceInfo, updataServiceInfo} from '@/api/service.js'
-import { dictList } from '@/api/common'
+import { academyList, academyGroupList, academyProfessorList, addServiceInfo ,getServiceInfo, updataServiceInfo} from '@/api/service.js'
+import { mapGetters } from 'vuex'
 export default {
     props:[
         'currentNode',//当前分类信息
         "type"  //0:添加 1：编辑
         ],
+    computed: {
+        ...mapGetters([
+        'isEditMode', 
+        'hasServerEntry' ,
+        'dictList'
+        ])
+    },
     data () {
         return {
             serviceInfo:{
@@ -167,7 +174,7 @@ export default {
             academyList:[],
             academyGroupList:[],
             academyProfessorList:[],
-            dictList:[],
+            // dictList:[],
             rules: {
                 serviceName: [
                     { required: true, message: '请输入服务名称', trigger: 'blur' },
@@ -218,6 +225,7 @@ export default {
         returnBack(){
             this.$emit("returnBack")
         },
+        // 打开接入信息弹出框
         addServerInfo(){
             console.log("==============添加/编辑接入信息================")
             this.$emit("dialogMethod",true)
@@ -248,7 +256,7 @@ export default {
                             
                         })
                     }else{
-                        addService(this.serviceInfo).then(reponse => {
+                        addServiceInfo(this.serviceInfo).then(reponse => {
                             this.serviceId = reponse.data.id
                             this.$store.dispatch('SetServiceId', this.serviceId)
                             console.log(this.$store.state)
@@ -294,11 +302,11 @@ export default {
             this.academyList = response.data
         })
         // 获取字典表所有数据
-        dictList().then(response => {
-            this.dictList = response.data
-        })
+        // dictList().then(response => {
+        //     this.dictList = response.data
+        // })
         console.log("为编辑状态  获取服务信息详情")
-        console.log(this.type)
+        // console.log(this.type)
         if(this.type == 1){
             getServiceInfo({serviceId:this.$store.state.service.serviceId}).then(response =>{
                 // 课题组／研究方向

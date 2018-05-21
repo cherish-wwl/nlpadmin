@@ -27,7 +27,7 @@ export function academyProfessorList(params) {
 
 
 // 保存服务接口：classify/addService
-export function addService(params) {
+export function addServiceInfo(params) {
     return request({
       url: 'classify/addService',
       method: 'post',
@@ -36,7 +36,7 @@ export function addService(params) {
 }
 
 
-// 获取服务信息
+// 获取服务详情信息
 export function getServiceInfo(params){
   return request({
     url:'/classify/serviceDetail',
@@ -45,10 +45,10 @@ export function getServiceInfo(params){
   })
 }
 
-// 保存新增信息接口 /entry/ServiceEntry/add
-export function addServer(params){
+// 添加服务接入信息接口 /entry/ServiceEntry/add
+export function addServiceEntryInfo(params){
   return request({
-    url:'entry/ServiceEntry/add',
+    url:'/classify/service/serviceEntry/add',
     method:'post',
     params
   })
@@ -79,3 +79,20 @@ export function delService(params){
 
 
 
+// 获取服务接入信息接口  serviceId  (谷跃飞)
+export function getServiceEntryInfo(params){
+  return request({
+    url:'/classify/service/serviceEntryInfo',
+    method:'post',
+    params
+  })
+}
+
+// 保存编辑服务接入信息接口  serviceId  (谷跃飞)
+export function updateServiceEntryInfo(params){
+  return request({
+    url:'entry/update/serviceEntry',
+    method:'post',
+    params
+  })
+}

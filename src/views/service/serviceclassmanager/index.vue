@@ -24,7 +24,7 @@
           <el-table-column prop="name" label="name"> </el-table-column>
           <el-table-column prop="descr" label="descr"> </el-table-column>
           <el-table-column prop="icon" label="icon"> </el-table-column>
-          <el-table-column prop="leaf" label="leaf"> </el-table-column>
+          <!-- <el-table-column prop="leaf" label="leaf"> </el-table-column> -->
           <el-table-column prop="p_id" label="p_id"> </el-table-column>
           <el-table-column prop="rec_num" label="rec_num"> </el-table-column>
           <el-table-column prop="ser_type" label="ser_type"> </el-table-column>
@@ -59,9 +59,9 @@
         <el-form-item label="icon" :label-width="formLabelWidth">
           <el-input v-model="form.icon" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="leaf" :label-width="formLabelWidth">
-          <el-input v-model="form.leaf" auto-complete="off"></el-input>
-        </el-form-item>
+        <!-- <el-form-item label="leaf" :label-width="formLabelWidth"> -->
+          <!-- <el-input v-model="form.leaf" auto-complete="off"></el-input> -->
+        <!-- </el-form-item> -->
         <el-form-item label="p_id" :label-width="formLabelWidth">
           <el-input v-model="form.p_id" auto-complete="off" disabled></el-input>
         </el-form-item>
@@ -91,7 +91,7 @@ export default {
         name:'',
         descr:'',
         icon:'',
-        leaf:'',
+        // leaf:'',
         p_id:'',
         rec_num:'',
         ser_type:''
@@ -216,9 +216,17 @@ export default {
       
     },
     addRowData(){
+      console.log(this.currentNodeId.length)
+      if(this.currentNodeId.length == 9){
+        this.$message({
+          message: '当前分类下不能添加分类!',
+          type: 'warning'
+        })
+        return 
+      }
       this.dialogFormVisible = true
       this.dialogTitle = '添加数据'
-      this.form = { name:'', descr:'',icon:'', leaf:'', p_id:this.currentNodeId, rec_num:'', ser_type:''}
+      this.form = { name:'', descr:'',icon:'', p_id:this.currentNodeId, rec_num:'', ser_type:''}
       this.dataMode = 'add'
     },
     editRowData(row){

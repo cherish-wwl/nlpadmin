@@ -32,3 +32,28 @@ export function updateSolution(params) {
     params
   })
 }
+
+// 添加解决方案接入信息
+export function addSolutionEntryInfo(params) {
+  return request({
+    url:"/solution/serviceEntry/add",
+    method: 'post',
+    params
+  })
+}
+// 获取解决方案接入信息
+export function getSolutionEntryInfo(params) {
+  return request({
+    url:"/solution/serviceEntryInfo",
+    method: 'post',
+    params
+  })
+}
+// 更新解决方案接入信息updateSolutionEntryInfo
+export function updateSolutionEntryInfo(params) {
+  return request({
+    url:"entry/update/serviceEntry",
+    method: 'post',
+    params
+  })
+}

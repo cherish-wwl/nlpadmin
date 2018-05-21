@@ -31,15 +31,15 @@
           <br />
           <br />
           <el-table :data="tableData"  border style="width: 100%" v-loading="loading" >
-             <el-table-column prop="name" label="name" width='100'> </el-table-column>
+             <el-table-column prop="name" label="名称" min-width='100'> </el-table-column>
               <!-- <el-table-column prop="type_name" label="type_name" width='100'> </el-table-column> -->
-              <el-table-column prop="image" label="image" width='100'> </el-table-column>
-              <el-table-column prop="size" label="size" width='100'> </el-table-column>
-              <el-table-column prop="uploader" label="uploader" width='100'> </el-table-column>
-              <el-table-column prop="introduce" label="introduce" width='500'> </el-table-column>
-              <el-table-column prop="format" label="format" width='100'> </el-table-column>
-              <el-table-column prop="attr" label="attr" width='100'> </el-table-column>
-              <el-table-column prop="url" label="url" width='300'> </el-table-column>
+              <el-table-column prop="image" label="图片" min-width='100'> </el-table-column>
+              <el-table-column prop="size" label="大小" min-width='100'> </el-table-column>
+              <el-table-column prop="uploader" label="上传者" min-width='100'> </el-table-column>
+              <el-table-column prop="introduce" label="介绍" min-width='500'> </el-table-column>
+              <el-table-column prop="format" label="格式" min-width='100'> </el-table-column>
+              <!-- <el-table-column prop="attr" label="attr" width='100'> </el-table-column> -->
+              <el-table-column prop="url" label="访问路径" min-width='300'> </el-table-column>
               <el-table-column label="操作" width="90" fixed="right">
                 <template slot-scope="scope">
                     <el-button @click="deleteClick(scope.row,'three')" type="text" size="small">删除</el-button>
@@ -69,9 +69,10 @@
          :label-width="item.labelWidth" 
          :prop="item.prop" 
          :rules="item.rules">   
-          <el-input v-if="item.isInput" v-model="form[item.prop]" auto-complete="off"></el-input>
-          <el-input v-if="item.isTextarea" type="textarea" :autosize="{ minRows: 2, maxRows: 6}" :rows="2" v-model="form[item.prop]" auto-complete="off"></el-input>
-          <el-select v-if="item.isSelect" v-model="form[item.prop]" placeholder="请选择">
+          <el-input v-if="item.isNumber" v-model.number="form[item.prop]" auto-complete="off"></el-input>
+          <el-input v-else-if="item.isInput" v-model="form[item.prop]" auto-complete="off"></el-input>
+          <el-input v-else-if="item.isTextarea" type="textarea" :autosize="{ minRows: 2, maxRows: 6}" :rows="2" v-model="form[item.prop]" auto-complete="off"></el-input>
+          <el-select v-else-if="item.isSelect" v-model="form[item.prop]" placeholder="请选择">
              <el-option v-for="child in dictList" v-if="child.parentCode ==item.parentCode" 
                     :key="child.dictCode" :label="child.dictName" :value="child.dictCode"></el-option>
           </el-select>
@@ -148,32 +149,51 @@ export default {
            isInput:true,
            isTextarea:false,
           },
-          {name:'uploader',
+          {name:'上传者',
            prop:'uploader',
+           rules:[
+            { required: true, message: '上传者不能为空', trigger: 'blur'}
+           ],
            labelWidth:'180px',
            isInput:true,
            isTextarea:false,
           },
-          {name:'size',
+          {name:'大小',
            prop:'size',
            labelWidth:'180px',
+           isNumber:true,
+           rules:[   
+            //  { min: 1, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' },
+             { required: true, message: '请输入大小', pattern: /.+/, trigger: 'blur'},
+            { type: 'number', message: '必须是数字'}
+           ],
            isInput:true,
            isTextarea:false,
           },
-          {name:'introduce',
+          {name:'介绍',
            prop:'introduce',
+           rules:[
+            { required: true, message: '介绍不能为空', trigger: 'blur'},
+           ],
            labelWidth:'180px',
            isInput:true,
            isTextarea:false,
           },
-          {name:'format',
+          {name:'格式',
            prop:'format',
+           rules:[
+            { required: true, message: '格式不能为空', trigger: 'blur'},
+            { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+           ],
            labelWidth:'180px',
            isInput:true,
            isTextarea:false,
           },
-          {name:'url',
+          {name:'访问路径',
            prop:'url',
+           rules:[
+            { required: true, message: '格式不能为空', trigger: 'blur'},
+           ],
            labelWidth:'180px',
            isInput:true,
            isTextarea:false,
@@ -515,6 +535,10 @@ export default {
                 //刷新表格 
                 this.currentPage = 1
                 this.loadingTable(this.currentLevelTwoId)
+                this.$message({
+                  type: 'success',
+                  message: '操作成功' 
+                })
               })  
             }else{
               this.$message({

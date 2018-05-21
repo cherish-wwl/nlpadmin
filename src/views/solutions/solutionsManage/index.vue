@@ -12,14 +12,30 @@
     <br />
     <br />
     <el-table :data="tableData"  border style="width: 100%" v-loading="loading" >
-      <el-table-column prop="solutionId" label="序号" type='index' align="center" width="50"> </el-table-column>
-      <el-table-column prop="solutionName" label="标题" min-width="160"> </el-table-column>
-      <el-table-column prop="solutionDesc" label="描述" min-width="280"> </el-table-column>
-      <el-table-column prop="solutionIcon" label="图片" min-width="150"> </el-table-column>
-      <el-table-column prop="academyName" label="机构名称" min-width="150"> </el-table-column>
-      <el-table-column prop="forwardType" label="跳转方式" min-width="150" :formatter="transferforwardType"> </el-table-column>
-      <el-table-column prop="acceptTime" label="接入时间" min-width="150"> </el-table-column>
-      <el-table-column prop="solutionUrl" label="访问路径" min-width="150"> </el-table-column>
+      <el-table-column label="序号" type='index' align="center" width="50">
+        
+      </el-table-column>
+      <el-table-column prop="solutionName" label="标题" min-width="160"> 
+        <template slot-scope="scope">{{scope.row.solutionName||''}}</template>
+      </el-table-column>
+      <el-table-column prop="solutionDesc" label="描述" min-width="280" empty-text="empty"> 
+        <template slot-scope="scope">{{scope.row.solutionDesc||''}}</template>
+      </el-table-column>
+      <el-table-column prop="solutionIcon" label="图片" min-width="150">
+        <template slot-scope="scope">{{scope.row.solutionIcon||''}}</template>
+      </el-table-column>
+      <el-table-column prop="academyName" label="机构名称" min-width="150"> 
+        <template slot-scope="scope">{{scope.row.academyName||''}}</template>
+      </el-table-column>
+      <el-table-column prop="forwardType" label="跳转方式" min-width="150" :formatter="transferforwardType"> 
+        <template slot-scope="scope">{{transferforwardType(scope.row)||''}}</template>
+      </el-table-column>
+      <el-table-column prop="acceptTime" label="接入时间" min-width="150">
+        <template slot-scope="scope">{{scope.row.acceptTime||''}}</template>
+      </el-table-column>
+      <el-table-column prop="solutionUrl" label="访问路径" min-width="150"> 
+        <template slot-scope="scope">{{scope.row.solutionUrl||''}}</template>
+      </el-table-column>
       <el-table-column label="操作" width="90" fixed='right'>
         <template slot-scope="scope">
             <el-button @click="deleteRowData(scope.row)" type="text" size="small">删除</el-button>
@@ -38,18 +54,19 @@
         :total="totalNumber">
         </el-pagination>
     </div> 
-    <el-dialog :title="mode=='add'?'添加':'机构'" :visible.sync="dialogFormVisible" width="40%">
-      <el-form :model="form" ref="ruleForm">
+    <el-dialog :title="mode=='add'?'添加信息':'编辑信息'" :visible.sync="dialogFormVisible" width="75%" :center="true">
+      <!-- 解决方案信息 -->
+      <el-form :model="form" ref="ruleForm"  :inline="true" label-width="140px" label-position="right" >
         <el-form-item 
          v-for="(item,index) in formData" :key="index" 
          :label="item.name+':'" 
-         :label-width="item.labelWidth" 
          :prop="item.prop" 
-         :rules="item.rules">   
+         :rules="item.rules"
+         class="width50" 
+         >   
           <el-input v-if="item.isInput" v-model="form[item.prop]" auto-complete="off"></el-input>
           <el-input v-if="item.isTextarea" type="textarea" :autosize="{ minRows: 2, maxRows: 6}" :rows="2" v-model="form[item.prop]" auto-complete="off"></el-input>
           <el-select v-if="item.isSelect" v-model="form[item.prop]" placeholder="请选择">
-           
               <el-option 
                 v-if="item.isAcademy"
                 v-for="child in academyList"
@@ -63,11 +80,15 @@
                 :value="child.dictCode">
               </el-option>
               </template>
-              
-    
           </el-select>
-        </el-form-item>
+        </el-form-item> 
       </el-form>
+      <!-- 接入信息 -->
+      <el-checkbox :disabled="disabledEntryInfo" v-model="showEntryInfo">{{hasEntryInfo == true ?'编辑接入信息':'添加接入信息'}}</el-checkbox>
+      <br />
+      <br />
+      <br />
+      <entry-info ref="entryInfo" :entry-info="entryInfo"  :status="entryInfoStatus" :solution-id="solutionId" @setVaildataEntryInfo="setVaildataEntryInfo" v-if="showEntryInfo"></entry-info>
       <div slot="footer" class="dialog-footer">
         <el-button @click="closeDialog">取 消</el-button>
         <el-button type="primary" @click="submitForm('ruleForm')">确 定</el-button>
@@ -76,17 +97,26 @@
   </div>
 </template>
 <script>
-import { solutionList, addSolution, delSolution, updateSolution } from '@/api/solutions/solutionsManage'
+import { solutionList, addSolution, delSolution, updateSolution, addSolutionEntryInfo, getSolutionEntryInfo, updateSolutionEntryInfo } from '@/api/solutions/solutionsManage'
 import { getSchoolsList } from '@/api/systemManager/organization'
+
 import { mapGetters } from 'vuex'
+import { EntryInfo } from '@/views/solutions/solutionsManage/components'
 export default {
   computed: {
     ...mapGetters([
       'dictList'
     ])
   },
+  components:{
+    EntryInfo
+  },
   data () {
     return {
+      entryInfoStatus:0,//0:代表add 1：edit
+      hasEntryInfo:false,
+      disabledEntryInfo:false,
+      showEntryInfo:false,
       searchKey:null,
       loading: false,
       tableData:null,
@@ -177,19 +207,23 @@ export default {
           isTextarea:false,
           isSelect:true
         },
-        {
-          name:'接入时间',
-          prop:'acceptTime',
-          labelWidth:'180px',
-          isInput:true,
-          isTextarea:false,
-        }
+        // {
+        //   name:'接入时间',
+        //   prop:'acceptTime',
+        //   labelWidth:'180px',
+        //   isInput:true,
+        //   isTextarea:false,
+        // }
       ],
       // dictList:'',
-      academyList:''
+      academyList:'',
+      vaildataEntryInfo: false,  //用于记录接入信息 是否验证通过 
+      entryInfo:null,  //用于暂存 接入信息
+      solutionId:''
     }
   },
   methods:{
+    // 翻译接入方式
     transferforwardType(row){
       if(!row.forwardType){
         return ''
@@ -243,18 +277,55 @@ export default {
       })
        
     },
-    editRowData(mode,row) {     
+    editRowData(mode,row) {    
+      console.log("编辑") 
       console.log(row)
       // row.academyId =row.academyId + 0
       this.form = row
       this.mode = mode
       this.dialogFormVisible = true
+      this.entryInfoStatus = 1 //0:代表add 1：edit
+      this.solutionId = row.solutionId
+      getSolutionEntryInfo({serviceId:this.solutionId}).then(res =>{
+        if(res.data == null){
+          this.showEntryInfo = false
+          this.hasEntryInfo = false
+          this.disabledEntryInfo = false
+        }else{
+          this.showEntryInfo = true
+          this.hasEntryInfo = true
+          this.disabledEntryInfo = true
+          this.entryInfo = res.data
+          console.log(this.entryInfo)
+          setTimeout( ()=>{
+            this.$refs.entryInfo.hasEntryInfoToInit(this.entryInfo)
+          },500)
+          
+        }
+      })
     },
     addRowData(mode) {
-      console.log("addTradesRowData")
+      console.log("添加")
       this.mode = mode
-      this.form = this.initForm
+      
+      this.form = {
+        academyId:"",
+        academyName:"",
+        acceptTime:"",
+        forwardType: "",
+        solutionDesc:"",
+        solutionIcon:"",
+        solutionId:'',
+        solutionName : "",
+        solutionUrl:"",
+      }
+      
       this.dialogFormVisible = true
+      this.showEntryInfo = false
+      this.hasEntryInfo = false
+      this.disabledEntryInfo = false
+      this.entryInfoStatus = 0 //0:代表add 1：edit
+      this.solutionId = ""
     },
     loadingTableData(){
       solutionList ({pageNow:this.currentPage,pageSize:this.pageSize,keyword:this.searchKey}).then(response => {
@@ -266,23 +337,70 @@ export default {
       this.dialogFormVisible = false
       this.$refs['ruleForm'].resetFields();
     },
+    setVaildataEntryInfo(item){
+      this.vaildataEntryInfo = item.vaild
+      this.entryInfo = item.info
+    },
     //提交表单
     submitForm(formName){
       console.log(this.form)
+      // 验证解决方案信息
       this.$refs[formName].validate((valid) => {
-        if (valid) {
+        // 验证接入信息
+        if(this.showEntryInfo){
+          this.$refs.entryInfo.submitForm('ruleForm')
+        }else{
+          this.vaildataEntryInfo = true  //不需要接入信息 则不需要验证接入信息
+        }
+
+
+        if (valid && this.vaildataEntryInfo) {
+          
           if(this.mode == 'add'){
+            // 保存解决方案
             addSolution(this.form).then(response => {
+              // 保存接入信息
+              if( this.showEntryInfo ){
+                this.entryInfo.accessId = response.data.solutionId
+                addSolutionEntryInfo(this.entryInfo).then(res =>{
+                  this.$message({
+                    message: '保存成功！',
+                    type: 'success'
+                  })  
+                })
+              }else{
+                this.$message({
+                message: '保存成功！',
+                type: 'success'
+              })  
+              }
               // 刷新表格
               this.loadingTableData()
               this.closeDialog()
-              this.$message({
-                message: '保存成功！',
-                type: 'success'
-              })       
+                   
             })
+
           }else{
             updateSolution(this.form).then(response => {
+             
+              this.entryInfo.accessId = this.solutionId
+              if( !this.hasEntryInfo ){
+                 // 新增接入信息
+                addSolutionEntryInfo(this.entryInfo).then(res =>{
+                  this.$message({
+                    message: '保存成功！',
+                    type: 'success'
+                  })  
+                })
+              }else{
+                 // 更新接入信息
+                updateSolutionEntryInfo(this.entryInfo).then(res =>{
+                  this.$message({
+                    message: '保存成功！',
+                    type: 'success'
+                  })  
+                })
+              }
               // 刷新表格
               this.loadingTableData()
               this.closeDialog()
@@ -300,21 +418,38 @@ export default {
     }
   },
   mounted (){
-    this.loadingTableData()
-    // this.dictList = this.$store.state.app.dictList
-    // console.log(this.$store.state.app)
-    getSchoolsList().then( res => {
-      this.academyList = res.data
-    })
+    setTimeout( () => {
+      this.loadingTableData()
+      // this.dictList = this.$store.state.app.dictList
+      // console.log(this.$store.state.app)
+      getSchoolsList().then( res => {
+        this.academyList = res.data
+      })
+    },0)
+    
   }
 }
 </script>
-<style scoped>
+<style scoped rel="stylesheet/scss" lang="scss">
   .el-pagination{
     text-align: right;
   }
-  .el-input {
-    width: 180px;
+  .el-input,.el-select {
+   
+    width: 230px;
+  }
+
+  .width50{
+    width: 48%;
+  }
+  .width100{
+    width: 100%;
+    .el-form-item__content{
+      width: 77.5%;
+    }
+  }
+  label.el-checkbox {
+    margin-left: 72px;
   }
 </style>
 

@@ -65,7 +65,7 @@
       </div>
     </el-col>
     <!-- 添加/编辑弹出框 -->
-    <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="40%">
+    <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="40%" >
       <el-form :model="form" ref="ruleForm">
         <el-form-item 
          v-for="(item,index) in formData" :key="index" 
@@ -236,31 +236,7 @@ export default {
       this.edieMode = false
       let formData = {}
       let form = {}
-      if((this.currentNodeId+'').indexOf('s') == -1){
-        // 添加部门
-        formData =
-        [ 
-          {name:'部门名称',
-          prop:'groupName',
-          rules:{ required: true, message: '部门名称不能为空', trigger: 'blur'},
-          labelWidth:'180px',
-          isInput:true,
-          isTextarea:false,
-          },
-          {name:'部门描述',
-           prop:'grouDesc',
-           labelWidth:'180px',
-           isInput:false,
-           isTextarea:true,
-          },
-        ]
-        form = {
-          academyId:this.academyId,
-          groupName:'',
-          grouDesc:''
-        }
-        this.dialogTitle = '添加部门'  
-      }else{
+      if((this.currentNodeId+'').indexOf('s') != -1){
         // 添加机构
         formData =
         [ 
@@ -291,22 +267,8 @@ export default {
         }
         
         this.dialogTitle = '添加机构'
-      }
-      this.form = form
-      this.formData = formData
-      this.dialogFormVisible = true     
-    },
-    // 左侧编辑按钮  编辑机构、部门
-    editClick(){
-      this.isProfessor = false
-      console.log("左侧编辑按钮  编辑机构、部门")      
-      console.log(this.currentNodeId)
-     
-      this.edieMode = true
-      let formData = {} 
-      let form = {}
-      if((this.currentNodeId+'').indexOf('s') == -1){
-        //编辑部门
+      }else{
+        // 添加部门
         formData =
         [ 
           {name:'部门名称',
@@ -317,17 +279,40 @@ export default {
           isTextarea:false,
           },
           {name:'部门描述',
-           prop:'groupDesc',
+           prop:'grouDesc',
            labelWidth:'180px',
            isInput:false,
            isTextarea:true,
           },
         ]
-        console.log(this.currentNode)
-        form = this.currentNode
-        form.id = this.currentNodeId
-        this.dialogTitle = '编辑部门' 
-      }else{
+        form = {
+          academyId:this.academyId,
+          groupName:'',
+          grouDesc:''
+        }
+        this.dialogTitle = '添加部门'  
+        
+      }
+      this.form = form
+      this.formData = formData
+      this.dialogFormVisible = true     
+    },
+    // 左侧编辑按钮  编辑机构、部门
+    editClick(){
+      this.isProfessor = false
+      console.log("左侧编辑按钮  编辑机构、部门")      
+      console.log(this.currentNodeId)
+      if(this.currentNodeId == "s"){
+        this.$message({
+          message: '请选择机构',
+          type: 'info'
+        })      
+        return 
+      }
+      this.edieMode = true
+      let formData = {} 
+      let form = {}
+      if((this.currentNodeId+'').indexOf('s') != -1){
         // 添加机构
         formData =
         [ 
@@ -357,6 +342,29 @@ export default {
           }
         }
         this.dialogTitle = '编辑机构'
+      }else{
+         //编辑部门
+        formData =
+        [ 
+          {name:'部门名称',
+          prop:'groupName',
+          rules:{ required: true, message: '部门名称不能为空', trigger: 'blur'},
+          labelWidth:'180px',
+          isInput:true,
+          isTextarea:false,
+          },
+          {name:'部门描述',
+           prop:'groupDesc',
+           labelWidth:'180px',
+           isInput:false,
+           isTextarea:true,
+          },
+        ]
+        console.log(this.currentNode)
+        form = this.currentNode
+        form.id = this.currentNodeId
+        this.dialogTitle = '编辑部门' 
+        
       }
       this.form = form
       this.formData = formData
@@ -386,18 +394,7 @@ export default {
               return 
             }
             console.log(this.currentNodeId)
-            if((this.currentNodeId+'').indexOf('s') == -1){
-              // 编辑部门
-              updateGroup(this.form).then(response => {
-                // 初始化页面
-                this.init()
-                this.dialogFormVisible = false
-                this.$message({
-                  message: '保存部门成功！',
-                  type: 'success'
-                })       
-              })
-            }else{
+            if((this.currentNodeId+'').indexOf('s') != -1){
               // 编辑机构
               updateAcademy(this.form).then(response => {
                 // 初始化页面
@@ -405,6 +402,18 @@ export default {
                 this.dialogFormVisible = false
                 this.$message({
                   message: '保存机构成功！',
+                  type: 'success'
+                })       
+              })
+            }else{
+             
+               // 编辑部门
+              updateGroup(this.form).then(response => {
+                // 初始化页面
+                this.init()
+                this.dialogFormVisible = false
+                this.$message({
+                  message: '保存部门成功！',
                   type: 'success'
                 })       
               })
@@ -428,18 +437,7 @@ export default {
               return 
             }
             console.log(this.currentNodeId)
-            if((this.currentNodeId+'').indexOf('s') == -1){
-              // 添加部门
-              addGroup(this.form).then(response => {
-                // 初始化页面
-                this.init()
-                this.dialogFormVisible = false
-                this.$message({
-                  message: '保存部门成功！',
-                  type: 'success'
-                })       
-              })
-            }else{
+            if((this.currentNodeId+'').indexOf('s') != -1){
               // 添加机构
               addAcademy(this.form).then(response => {
                 // 初始化页面
@@ -447,6 +445,18 @@ export default {
                 this.dialogFormVisible = false
                 this.$message({
                   message: '保存机构成功！',
+                  type: 'success'
+                })       
+              })
+              
+            }else{
+              // 添加部门
+              addGroup(this.form).then(response => {
+                // 初始化页面
+                this.init()
+                this.dialogFormVisible = false
+                this.$message({
+                  message: '保存部门成功！',
                   type: 'success'
                 })       
               })
@@ -460,14 +470,21 @@ export default {
     },
     // 左侧删除按钮  删除机构、部门
     deleteClick(){
+      if(this.currentNodeId == "s"){
+        this.$message({
+          message: '请选择机构',
+          type: 'info'
+        })    
+         return   
+      }
       this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-          if((this.currentNodeId+'').indexOf('s') == -1){
-            // 删除部门
-             delGroup({id:this.currentNodeId}).then(response => {
+          if((this.currentNodeId+'').indexOf('s') != -1 ){
+            // 删除机构
+            delAcademy({id:this.academyId}).then(response => {
               this.init()
               this.$message({
                 type: 'success',
@@ -475,8 +492,8 @@ export default {
               })
             })
           }else {
-            // 删除机构
-            delAcademy({id:this.academyId}).then(response => {
+            // 删除部门
+             delGroup({id:this.currentNodeId}).then(response => {
               this.init()
               this.$message({
                 type: 'success',
@@ -556,6 +573,7 @@ export default {
     },
     // 删除教授
     deleteProfessor(row){
+       
       this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -580,7 +598,7 @@ export default {
       this.tableData = []
       getSchoolsList().then(response => {
         this.schoolsList = response.data
-        if(response.data[0]){
+        if(response.data[0] && response.data != null){
           if(this.academyId != ''){
              this.activeNames = 's'+this.academyId
             this.handleChange('s'+this.academyId)
@@ -588,8 +606,9 @@ export default {
             this.activeNames = 's'+response.data[0].id
             this.handleChange('s'+response.data[0].id)
           }
-          
-        }
+        }else{
+          this.currentNodeId = "s"
+        }        
       })
     }
   },
@@ -613,7 +632,10 @@ export default {
    
     width: 230px;
   }
-
+  .el-dialog__body {
+      height: auto !important;
+      overflow-y: auto;
+  }
   .width50{
     width: 48%;
   }

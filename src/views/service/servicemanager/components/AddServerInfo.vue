@@ -31,6 +31,7 @@
               </el-select>
             </el-form-item>
             <el-form-item label="服务器信息：" class="width100" prop="serverId" >
+                <span v-if="serverInfo.accessWay =='002002'">当前选中：id为{{ serverInfo.serverId}}的服务器信息</span>
                 <el-table
                  ref="singleTable"
                 :data="tableData"
@@ -40,7 +41,8 @@
                 height="250"
                 style="width: 100%">
                     <el-table-column
-                    type="index"
+                    prop="id" 
+                    label="id"
                     width="50">
                     </el-table-column>        
                     <el-table-column prop="innerIP"  label="innerIP"  width="180"> </el-table-column>
@@ -81,8 +83,8 @@
 </template>
 <script>
 
-    import { getServerList,addServerInfo, serviceEntryInfo, updateServiceEntryInfo } from '@/api/server.js'
-    // import { dictList } from '@/api/common'
+    import { getServerList } from '@/api/server.js'
+    import { addServiceEntryInfo, getServiceEntryInfo, updateServiceEntryInfo} from '@/api/service.js'
     import { mapGetters } from 'vuex'
     export default {
         computed: {
@@ -194,21 +196,34 @@
                 console.log("监听dialogFormVisible："+val)
                 this.isVisible = val
                 // 清空表单
-                this.serverInfo = this.initServerInfo
-                console.log(this.isEditMode)
+                this.serverInfo = {
+                    accessWay:'002001',//接入类型
+                    accessState:'',
+                    accessModel:'',
+                    deployPath:'',
+                    visitURL:'',
+                    contactPerson:'',
+                    contactTel:'',
+                    accessPerson:'',
+                    accessId:this.serviceId,//服务id
+                    serverId:'' //服务器id
+                }
+                
                 if(this.isEditMode && val) {
                     // 获取服务器列表
                     getServerList().then(response =>{
                         this.defauleTableData = response.data
                     })
+                   
                     // 获取服务接入信息
-                    serviceEntryInfo({serviceId:this.$store.state.service.serviceId,accessType:this.$store.state.service.accessType}).then(response =>{   
+                    getServiceEntryInfo({serviceId:this.$store.state.service.serviceId}).then(response =>{   
                         if(response.data != null){
                             this.serverInfo = response.data 
                             if(response.data.accessWay == "002002"){
                                 this.rules = this.defaultRules 
                                 this.tableData = this.defauleTableData
                                 this.serverInfo.visitURL=''
+                                
                                 console.log("==============编辑：初始化信息==============")
                                 for(let i=0; i<this.defauleTableData.length; i++){
                                     if(this.defauleTableData[i].id == response.data.serverId){
@@ -223,9 +238,11 @@
                                 this.serverInfo.deployPath=''
                             }
                             
+                        }else{
+                           this.tableData = [] 
                         }  
                     })
-                    
+                    // this.$refs['ruleForm'].clearValidate()                  
                 }
             },
             isVisible(val) {
@@ -250,7 +267,9 @@
                 this.serverInfo.accessWay = val
                 this.serverInfo.accessType = this.$store.state.service.accessType
                  // 表单清空验证
-                this.$refs['ruleForm'].clearValidate()
+                setTimeout(()=>{
+                    this.$refs['ruleForm'].clearValidate()
+                },0)
             },
             closeDialog(val){
                 this.isVisible = false
@@ -260,6 +279,11 @@
                 console.log("+++++++++++++++++++当前选中表格的行数据+++++++++++++++++++++++")
                 console.log(val)
                 this.currentRow = val
+                if(val == null){
+                    this.serverInfo.serverId = null
+                    return
+                }
+                
                 this.serverInfo.serverId = val.id
             },
             submitForm (formName){
@@ -274,7 +298,7 @@
                     if (valid) {
                         // alert('submit!');
                         if(this.$store.state.service.isEditMode && this.hasServerEntry){
-                            // alert("update")
+                            // alert("update");
                             updateServiceEntryInfo(this.serverInfo).then(response =>{
                                 this.$message({
                                     message: '保存接入信息成功！',
@@ -285,7 +309,7 @@
                             })
                         }else{
                             // alert("add")
-                            addServerInfo(this.serverInfo).then(response =>{
+                            addServiceEntryInfo(this.serverInfo).then(response =>{
                                 this.$message({
                                     message: '保存接入信息成功！',
                                     type: 'success'
@@ -294,7 +318,6 @@
                                 this.$emit("returnBack")
                             })
                         }
-                       
                     } else {
                         console.log('error submit!!');
                         return false;

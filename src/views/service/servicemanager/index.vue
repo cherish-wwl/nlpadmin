@@ -35,7 +35,7 @@
           <el-table-column prop="academyName" label="所属学校" min-width="150"> </el-table-column>
           <el-table-column prop="professorName" label="所有者" min-width="150"></el-table-column>
           <el-table-column prop="serviceState" label="服务状态" min-width="150"></el-table-column>
-          <el-table-column prop="rel_time" label="发布时间" min-width="100"> </el-table-column>
+          <el-table-column prop="rel_time" label="发布时间" min-width="100" :formatter="formatterTime"> </el-table-column>
           <el-table-column label="操作" width="90" fixed="right">
             <template slot-scope="scope">
               <el-button @click="deleteRowData(scope.row)" type="text" size="small">删除</el-button>
@@ -75,7 +75,7 @@ import { delService } from '@/api/service'
 import { AddServicePanel, AddServerInfo} from '@/views/service/servicemanager/components'
 import { mapGetters } from 'vuex'
 
-import { subStringNoMore3line } from '@/utils/index'
+import { subStringNoMore3line, formatTime } from '@/utils/index'
 export default {
   computed: {
     ...mapGetters([
@@ -111,6 +111,14 @@ export default {
     AddServerInfo
   },
   methods: {
+    // 时间戳转换时间
+    formatterTime(row){
+      // console.log(time)
+      // if(row.rel_time && row.rel_time != "" ){
+      //   return formatTime(row.rel_time)
+      // } 
+      // return ''
+    },
     // 字符串转换
     stringFormatter( row, column ){
       // // console.log(row)
@@ -209,6 +217,14 @@ export default {
     },
     // 添加或编辑服务
     addOrEditService( type ,row){
+      console.log(this.currentNodeId.length)
+      if(this.currentNodeId.length != 9){
+        this.$message({
+          message: '当前分类下不能添加服务!',
+          type: 'warning'
+        })
+        return 
+      }
       if(this.isLastClassify){
           this.type = type
           if(type == 1){
@@ -222,7 +238,7 @@ export default {
           this.addPanel = true
       }else{
         this.$message({
-          message: '请选择最后一层类',
+          message: '请选择至最后一层类',
           type: 'warning'
         })
       }

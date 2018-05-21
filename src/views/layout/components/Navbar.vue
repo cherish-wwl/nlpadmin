@@ -1,6 +1,6 @@
 <template>
  <div>
-  <el-menu class="navbar" mode="horizontal">
+  <el-menu class="navbar navbar3" mode="horizontal">
     <hamburger class="hamburger-container" :toggleClick="toggleSideBar" :isActive="sidebar.opened"></hamburger>
     <breadcrumb></breadcrumb>
   </el-menu>
@@ -85,6 +85,12 @@ export default {
 }
 .navbar1{
   background-color: #304156;
+}
+.navbar3{
+  z-index: 2000;
+  position: fixed;
+  top: 50px;
+  width: 100%;
 }
 </style>
 
