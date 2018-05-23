@@ -20,7 +20,7 @@ export function editRowData(params) {
   return request({
     url: '/classify/typeUpdate',
     method: 'post',
-    params
+    data:params
   })
 }
 

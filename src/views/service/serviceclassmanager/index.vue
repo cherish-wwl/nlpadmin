@@ -50,25 +50,25 @@
     </el-col>
     <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible">
       <el-form :model="form">
-        <el-form-item label="name" :label-width="formLabelWidth">
+        <el-form-item label="姓名" :label-width="formLabelWidth">
           <el-input v-model="form.name" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="descr" :label-width="formLabelWidth">
+        <el-form-item label="说明" :label-width="formLabelWidth">
           <el-input v-model="form.descr" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="icon" :label-width="formLabelWidth">
+        <el-form-item label="图标" :label-width="formLabelWidth">
           <el-input v-model="form.icon" auto-complete="off"></el-input>
         </el-form-item>
         <!-- <el-form-item label="leaf" :label-width="formLabelWidth"> -->
           <!-- <el-input v-model="form.leaf" auto-complete="off"></el-input> -->
         <!-- </el-form-item> -->
-        <el-form-item label="p_id" :label-width="formLabelWidth">
+        <el-form-item label="父级id" :label-width="formLabelWidth">
           <el-input v-model="form.p_id" auto-complete="off" disabled></el-input>
         </el-form-item>
-        <el-form-item label="rec_num" :label-width="formLabelWidth">
+        <el-form-item label="是否推荐" :label-width="formLabelWidth">
           <el-input v-model="form.rec_num" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="ser_type" :label-width="formLabelWidth">
+        <el-form-item label="分类类型" :label-width="formLabelWidth">
           <el-input v-model="form.ser_type" auto-complete="off"></el-input>
         </el-form-item>
       </el-form>

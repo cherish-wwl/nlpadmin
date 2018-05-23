@@ -450,7 +450,10 @@ export default {
         // console.log(responce)
         this.loading = true
         this.leverOneData = responce.data  
-        if(this.leverOneData.length==0) return
+        if(this.leverOneData.length==0) {
+          this.loading = false 
+          return
+        }
         this.currentRadioId =this.leverOneData[0].id
         this.currentLevelOneId =this.leverOneData[0].id
         getlevelTwoData({ id: this.leverOneData[0].id}).then(responce=>{

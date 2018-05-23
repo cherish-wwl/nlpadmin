@@ -35,12 +35,12 @@
         v-model="searchKeyWord"
         v-on:change='querySearch' >
       </el-input>
-      <el-button type="primary" @click="addOrUpdateProfessor(0)" size='small'>添加教授</el-button>
+      <el-button type="primary" @click="addOrUpdateProfessor(0)" size='small'>添加人员</el-button>
       <br />
       <br />
       <el-table :data="tableData"  border style="width: 100%" v-loading="loading">
         <el-table-column prop="id" label="序号" type="index" align='center'> </el-table-column>
-        <el-table-column prop="professorName" label="教授名称" min-width="80"> </el-table-column>
+        <el-table-column prop="professorName" label="人员名称" min-width="80"> </el-table-column>
         <el-table-column prop="professorDesc" label="研究主要方向" width="250"> </el-table-column>
         <el-table-column prop="professorSex" label="性别" min-width="150" :formatter="parseSex"> </el-table-column>       
         <el-table-column prop="professorTitle" label="职称" min-width="150"> </el-table-column>
@@ -158,7 +158,7 @@ export default {
           }
         }
     },
-    // 点击学院 加载教授
+    // 点击学院 加载人员
     triggerReloadingTable(item){
       this.currentNodeId = item.groupId
       this.currentNode = item 
@@ -379,7 +379,7 @@ export default {
           if(this.edieMode){
             // 编辑模式
             if(this.isProfessor){
-              // 教授编辑
+              // 人员编辑
               updateProfessor(this.form).then(response => {
                 // 初始化页面
                 this.currentPage = 1
@@ -387,7 +387,7 @@ export default {
                 this.refreshLoadingData()
                 this.dialogFormVisible = false
                 this.$message({
-                  message: '保存教授成功！',
+                  message: '保存人员成功！',
                   type: 'success'
                 })       
               })
@@ -422,7 +422,7 @@ export default {
           }else{
             // 添加模式
             if(this.isProfessor){
-              // 教授添加
+              // 人员添加
               addProfessor(this.form).then(response => {
                 // 初始化页面
                 this.currentPage = 1
@@ -430,7 +430,7 @@ export default {
                 this.refreshLoadingData()
                 this.dialogFormVisible = false
                 this.$message({
-                  message: '保存教授成功！',
+                  message: '保存人员成功！',
                   type: 'success'
                 })       
               })
@@ -511,16 +511,16 @@ export default {
         })          
       })
     },
-    // 右侧点击添加教授按钮 /点击编辑教授按钮
+    // 右侧点击添加人员按钮 /点击编辑人员按钮
     addOrUpdateProfessor(type,row){
       if((this.currentNodeId+'').indexOf('s') != -1){
         return false
       }
       this.isProfessor = true
       let formData =  [ 
-          {name: '教授名称',
+          {name: '人员名称',
           prop: 'professorName',
-          rules:{ required: true, message: '教授名称不能为空', trigger: 'blur'},
+          rules:{ required: true, message: '人员名称不能为空', trigger: 'blur'},
           labelWidth:'180px',
           isInput:true,
           isTextarea:false,
@@ -548,7 +548,7 @@ export default {
         ]
       this.formData = formData
       if(type == 0){
-        // 添加教授
+        // 添加人员
         this.form = {
           professorName:'',
           professorDesc:'',
@@ -558,20 +558,20 @@ export default {
           groupId:this.currentNodeId
         }
 
-        this.dialogTitle = '添加教授'
+        this.dialogTitle = '添加人员'
         this.edieMode = false
 
       }else if(type == 1){
-        // 编辑教授
+        // 编辑人员
         this.form = row
-        this.dialogTitle = '编辑教授'
+        this.dialogTitle = '编辑人员'
         this.edieMode = true
       }
       
       this.dialogFormVisible = true
      
     },
-    // 删除教授
+    // 删除人员
     deleteProfessor(row){
        
       this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
@@ -579,7 +579,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        // 删除教授
+        // 删除人员
         delProfessor({id:row.id}).then(response => {
           this.refreshLoadingData()
           this.$message({

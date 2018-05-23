@@ -100,7 +100,7 @@ export const constantRouterMap = [
       {
         path: 'professorManage',
         name: 'professorManage',
-        meta: { title: '机构与教授管理'},
+        meta: { title: '机构与人员管理'},
         component: () => import('@/views/userManager/professorManage/index'), 
       },
       {
