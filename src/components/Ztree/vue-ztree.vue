@@ -1,8 +1,9 @@
 <style>
-	div.ztree_content_wrap {height:380px; }
-	div.ztree_content_wrap div.left{float: left;width: 100%;}
-	div.zTreeDemoBackground {width:100%;height:500px;text-align:left;}
-
+	/* div.ztree_content_wrap {height:380px; } */
+	/* div.ztree_content_wrap div.left{float: left;width: 100%;}
+	div.zTreeDemoBackground {width:100%;height:500px;text-align:left;} */
+	div.ztree_content_wrap div.left{width: 100%;}
+	div.zTreeDemoBackground {width:100%;text-align:left;}
 	.expendIcon {
 		background-position: -74px -36px;
 		line-height: 0;

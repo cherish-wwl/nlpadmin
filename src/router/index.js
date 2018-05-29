@@ -24,18 +24,6 @@ import Layout from '../views/layout/Layout'
 export const constantRouterMap = [
   { path: '/login', component: () => import('@/views/login/index'), hidden: true },
   { path: '/404', component: () => import('@/views/404'), hidden: true },
-
-  {
-    path: '/',
-    component: Layout,
-    redirect: '/test',
-    name: '测试',
-    hidden: true,
-    children: [{
-      path: 'test',
-      component: () => import('@/views/Ztree/main')
-    }]
-  },
   {
     path: '/',
     component: Layout,
@@ -120,6 +108,12 @@ export const constantRouterMap = [
         name: 'serviceClassManager',
         component: () => import('@/views/service/serviceclassmanager/index'),
         meta: { title: '服务分类管理' }
+      }, 
+      {
+        path: 'uploadFileManager',
+        name: 'uploadFileManager',
+        component: () => import('@/views/userManager/uploadFileManage/index'),
+        meta: { title: '文件、图片管理' }
       }, 
     ]
   },

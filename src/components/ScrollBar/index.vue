@@ -7,7 +7,7 @@
 </template>
 
 <script>
-const delta = 15
+const  delta= 50
 
 export default {
   name: 'scrollBar',
@@ -23,19 +23,34 @@ export default {
       const $containerHeight = $container.offsetHeight
       const $wrapper = this.$refs.scrollWrapper
       const $wrapperHeight = $wrapper.offsetHeight
-      console.log(eventDelta)
+      // console.log(eventDelta)
+      // console.log($container)
+      // console.log($containerHeight)
+      // console.log($wrapper)
+      // console.log($wrapperHeight)
+          
       if (eventDelta > 0) {
         this.top = Math.min(0, this.top + eventDelta)
-      } else {
-        // if ($containerHeight  < $wrapperHeight) {
+      } else{
+        this.top = 0
+      }
+      // else {
+        
+        //  if ($containerHeight +delta < $wrapperHeight) {
+          console.log($containerHeight +delta )
+          console.log( $wrapperHeight)
           if (this.top < -($wrapperHeight - $containerHeight + delta)) {
             this.top = this.top
           } else {
-            this.top = Math.max(this.top + eventDelta, $containerHeight - $wrapperHeight - delta)
+            this.top = Math.max(this.top + eventDelta- delta-delta, $containerHeight - $wrapperHeight - delta -delta)
           }
         // } else {
         //   this.top = 0
         // }
+      // }
+      
+      if(this.top >= 80){
+        this.top = 0
       }
     }
   }

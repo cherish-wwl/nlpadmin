@@ -99,9 +99,10 @@
     min-width: 250px!important;
   }
   .siderbar{
+    background-color: $menuBg;
     ul.ztree {
       background-color: #ffffff00 !important;
-      // overflow: auto;
+      overflow: hidden;
       border: none;
       li a{
         color: #fff;
