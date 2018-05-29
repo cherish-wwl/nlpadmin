@@ -5,6 +5,7 @@ const getters = {
   name: state => state.user.name,
   roles: state => state.user.roles,
   serviceId: state => state.service.serviceId,
+  serviceName: state => state.service.serviceName,
   hasServerEntry: state => state.service.hasServerEntry,
   isEditMode: state => state.service.isEditMode,
   dictList: state => state.app.dictList

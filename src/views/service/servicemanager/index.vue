@@ -1,19 +1,6 @@
 <template>
   <el-row :gutter="20">
-    <el-col :span="5">
-      <div class="grid-content">
-        <el-tree
-          node-key="id"
-          :props="props"
-          :load="loadNode"
-          lazy
-          @node-click="handleNodeClick"
-          highlight-current 
-          ref='tree'>
-        </el-tree>
-      </div>
-    </el-col>
-    <el-col :span="19" class="right-panel">
+    <el-col :span="24" class="right-panel">
       <div class="grid-content"  v-if="!addPanel">
         <el-input
           placeholder="请输入关键字"
@@ -79,7 +66,8 @@ import { subStringNoMore3line, formatTime } from '@/utils/index'
 export default {
   computed: {
     ...mapGetters([
-      'serviceId',  
+      'serviceId', 
+      'serviceName' 
     ])
   },
 
@@ -121,14 +109,7 @@ export default {
     },
     // 字符串转换
     stringFormatter( row, column ){
-      // // console.log(row)
-      // // console.log(column)
-     
-      // if(row.serviceDescr != ''){
-      //   return row.serviceDescr.substring(0,30)+'...'
-      // }
       return subStringNoMore3line(row.serviceDescr,30)
-
     },
     // 查询
     querySearch (){
@@ -177,18 +158,8 @@ export default {
           });          
         });
     },
-    // 点击左侧的树，触发列表刷新
-    handleNodeClick(data,resolve) {
-      // console.log(data)
-      this.nodeInfo = data 
-      this.currentNodeId = data.id
-      this.currentPage = 1
-      this.totalNumber = 0
-      this.tableData = []
-      this.addPanel = false
-      this.refreshLoadingData()
-    },  
-    refreshLoadingData(NodeId){
+   
+    refreshLoadingData(){
       this.loading = true 
       getServiceListById({ id: this.currentNodeId, pageSize: this.pageSize, pageNow: this.currentPage,keyword:this.searchKeyWord}).then(responce =>{
         this.tableData = responce.data.result
@@ -202,20 +173,8 @@ export default {
     reloadingTable(){
       console.log("++++++++++++++++添加服务，返回，调用刷新列表+++++++++++++++++++")
       this.refreshLoadingData()
-    },
-    // 加载分类
-    loadNode(node, resolve) {
-      let sendData
-      if (node.level === 0) {
-        sendData = { id: 0 }
-      }else {
-        sendData = { id: node.data.id }
-      } 
-      getList(sendData).then(response => {
-        return resolve(response.data)  
-      })  
-    },
-    // 添加或编辑服务
+    },   
+    // 添加或loadNode编辑服务
     addOrEditService( type ,row){
       console.log(this.currentNodeId.length)
       if(this.currentNodeId.length != 9){
@@ -225,23 +184,18 @@ export default {
         })
         return 
       }
-      if(this.isLastClassify){
-          this.type = type
-          if(type == 1){
-            // 编辑
-            // console.log(row)
-            this.$store.dispatch('SetIsEditMode', true)
-            this.$store.dispatch('SetServiceId', row.id)
-          }else{
-            this.$store.dispatch('SetIsEditMode', false)
-          }
-          this.addPanel = true
+      
+      this.type = type
+      if(type == 1){
+        // 编辑
+        // console.log(row)
+        this.$store.dispatch('SetIsEditMode', true)
+        this.$store.dispatch('SetServiceId', row.id)
       }else{
-        this.$message({
-          message: '请选择至最后一层类',
-          type: 'warning'
-        })
+        this.$store.dispatch('SetIsEditMode', false)
       }
+      this.addPanel = true
+      
     },
     // 返回服务列表
     returnBack(){
@@ -255,8 +209,26 @@ export default {
     }
     
   },
+  watch:{
+    $route(){
+      // console.log(this.$route.params.servicerId)
+      this.currentNodeId = this.$route.params.servicerId
+      this.refreshLoadingData()
+      this.nodeInfo={
+        name:this.serviceName,
+        id:this.servicerId
+      }
+      // console.log(this.serviceName)
+    }
+  },
   mounted () {
-    
+    this.currentNodeId = this.$route.params.servicerId
+    this.refreshLoadingData()
+    this.nodeInfo={
+      name:this.serviceName,
+      id:this.servicerId
+    }
+    // console.log(this.serviceName)
   }
 }
 </script>

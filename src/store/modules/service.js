@@ -2,6 +2,7 @@
 const service = {
   state: {
     serviceId: '',
+    serviceName: '',
     isEditMode: false,
     hasServerEntry:''
   },
@@ -9,6 +10,9 @@ const service = {
   mutations: {
     SET_SERVICE_ID: (state, serviceId) => {
       state.serviceId = serviceId
+    },
+    SET_SERVICE_NAME: (state,serviceName) =>{
+      state.serviceName = serviceName
     },
     SET_IS_EDIT_MODE: (state, isEditMode) => {
       state.isEditMode = isEditMode
@@ -24,6 +28,11 @@ const service = {
     SetServiceId({ commit },serviceId) {
       //console.log(serviceId)
       commit('SET_SERVICE_ID',serviceId )   
+    },
+    // 设置服务名称
+    SetServiceName({ commit },serviceName) {
+      //console.log(serviceId)
+      commit('SET_SERVICE_NAME',serviceName )   
     },
     // 设置编辑状态
     SetIsEditMode({ commit },isEditMode) {

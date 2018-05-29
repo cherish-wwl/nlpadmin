@@ -1,16 +1,27 @@
 <template>
   <el-breadcrumb class="app-breadcrumb" separator="/">
     <transition-group name="breadcrumb">
+      
       <el-breadcrumb-item v-for="(item,index)  in levelList" :key="item.path" v-if="item.meta.title">
         <span v-if="item.redirect==='noredirect'||index==levelList.length-1" class="no-redirect">{{item.meta.title}}</span>
-        <router-link v-else :to="item.redirect||item.path">{{item.meta.title}}</router-link>
+        <span v-else-if="item.name =='dataManager'" class="no-redirect">{{item.meta.title}}</span>
+        <router-link v-else :to="item.redirect||item.path">{{item.meta.title}}</router-link>  
+      </el-breadcrumb-item>   
+      <el-breadcrumb-item v-if="$route.name =='serviceManager'" key="service">
+        <span class="no-redirect">{{serviceName}}</span>   
       </el-breadcrumb-item>
     </transition-group>
   </el-breadcrumb>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
+  computed: {
+    ...mapGetters([
+      'serviceName'
+    ]),
+  },
   created() {
     this.getBreadcrumb()
   },

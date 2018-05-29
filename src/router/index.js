@@ -28,6 +28,17 @@ export const constantRouterMap = [
   {
     path: '/',
     component: Layout,
+    redirect: '/test',
+    name: '测试',
+    hidden: true,
+    children: [{
+      path: 'test',
+      component: () => import('@/views/Ztree/main')
+    }]
+  },
+  {
+    path: '/',
+    component: Layout,
     redirect: '/dashboard',
     name: '主页',
     hidden: true,
@@ -40,21 +51,16 @@ export const constantRouterMap = [
   {
     path: '/service',
     component: Layout,
-    redirect: '/service/serviceClassManager',
-    name: 'serviceManager',
+    redirect: '/service/serviceManager/001',
+    name: 'dataManager',
     meta: { title: '数据服务', icon: 'meun001',hasChildren:true },
     children: [
+      
       {
-        path: 'serviceClassManager',
-        name: 'serviceClassManager',
-        component: () => import('@/views/service/serviceclassmanager/index'),
-        meta: { title: '服务分类管理' }
-      }, 
-      {
-        path: 'serviceManager',
+        path: 'serviceManager/:servicerId',
         name: 'serviceManager',
         component: () => import('@/views/service/servicemanager/index'),
-        meta: { title: '服务管理' }
+        meta: { title: '服务管理',hasChildren:true }
       }
     ]
   },
@@ -108,7 +114,13 @@ export const constantRouterMap = [
         name: 'serverManager',
         meta: { title: '服务器管理'},
         component: () => import('@/views/userManager/serverManage/index'), 
-      }
+      },
+      {
+        path: 'serviceClassManager',
+        name: 'serviceClassManager',
+        component: () => import('@/views/service/serviceclassmanager/index'),
+        meta: { title: '服务分类管理' }
+      }, 
     ]
   },
   

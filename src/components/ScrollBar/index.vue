@@ -27,15 +27,15 @@ export default {
       if (eventDelta > 0) {
         this.top = Math.min(0, this.top + eventDelta)
       } else {
-        if ($containerHeight - delta < $wrapperHeight) {
+        // if ($containerHeight  < $wrapperHeight) {
           if (this.top < -($wrapperHeight - $containerHeight + delta)) {
             this.top = this.top
           } else {
             this.top = Math.max(this.top + eventDelta, $containerHeight - $wrapperHeight - delta)
           }
-        } else {
-          this.top = 0
-        }
+        // } else {
+        //   this.top = 0
+        // }
       }
     }
   }
