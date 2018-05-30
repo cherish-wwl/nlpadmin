@@ -4,7 +4,7 @@ import request from '@/utils/request'
 export function dictList(params) {
   return request({
     url: '/dict/list',
-    method: 'get',
+    method: 'post',
     params
   })
 }

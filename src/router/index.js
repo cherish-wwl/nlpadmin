@@ -88,7 +88,7 @@ export const constantRouterMap = [
     path: '/systemManager',
     component: Layout,
     name: 'systemManager',
-    redirect: '/systemManager/userManager',
+    redirect: '/systemManager/professorManage',
     meta: { title: '系统管理', icon: 'tree' ,hasChildren:true },
     children: [
       {
@@ -113,25 +113,18 @@ export const constantRouterMap = [
         path: 'uploadFileManager',
         name: 'uploadFileManager',
         component: () => import('@/views/userManager/uploadFileManage/index'),
-        meta: { title: '文件、图片管理' }
+        meta: { title: '图片管理' }
+      }, 
+      {
+        path: 'dictManager',
+        name: 'dictManager',
+        component: () => import('@/views/userManager/dictManage/index'),
+        meta: { title: '字典表管理' }
       }, 
     ]
   },
   
   { path: '*', redirect: '/404', hidden: true },
-  // {
-  //   path: '/userManager2',
-  //   component: Layout,
-  //   meta: {hasChildren:false },
-  //   children: [
-  //     {
-  //       path: 'index',
-  //       name: 'userManager',
-  //       meta: { title: '用户管理2', icon: 'tree' },
-  //       component: () => import('@/views/userManager/index'), 
-  //     }
-  //   ]
-  // },
 ]
 
 export default new Router({
