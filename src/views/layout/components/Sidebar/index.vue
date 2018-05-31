@@ -61,6 +61,7 @@ export default {
     },
     // 初始化数据
     init(){
+      console.log("初始化数据")
       var newData = []
       // 判断是否是服务管理页面 获取serviceID
       var serviceId = this.$route.params.servicerId

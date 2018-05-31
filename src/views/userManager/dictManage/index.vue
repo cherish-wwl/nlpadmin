@@ -23,8 +23,10 @@
     <br />
     <br />
     <el-table :data="tableData"  border style="width: 100%" v-loading="loading">
-        <el-table-column type="index"  width="50"> </el-table-column>       
+        <el-table-column type="index"  width="50"> </el-table-column>     
+        <el-table-column prop="dictCode"  label="dictCode"  min-width="180"> </el-table-column>  
         <el-table-column prop="dictName"  label="dictName"  min-width="180"> </el-table-column>
+
         <el-table-column prop="dictValue"  label="dictValue"  min-width="180"> </el-table-column>
         <el-table-column prop="natAccount"  label="createUser"  min-width="180"> </el-table-column>
         <el-table-column prop="createTime"  label="createTime"  min-width="180"> </el-table-column>

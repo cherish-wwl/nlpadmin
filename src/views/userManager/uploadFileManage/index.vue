@@ -26,18 +26,18 @@
     <br />
     <el-table :data="tableData"  border style="width: 100%" v-loading="loading">
         <el-table-column type="index"  width="50"> </el-table-column>       
-        <el-table-column prop="imageName"  label="图片描述"  min-width="180"> </el-table-column>
-        <el-table-column prop="dictCode"  label="图片类别"  min-width="180"> 
+        <el-table-column prop="fileDesc"  label="图片描述"  min-width="180"> </el-table-column>
+        <el-table-column prop="fileType"  label="图片类别"  min-width="180"> 
           <template slot-scope="scope">
             <span v-for="item in dictList"
-              v-if="item.parentCode =='013'&&item.dictCode ==scope.row.dictCode" 
+              v-if="item.parentCode =='013'&&item.dictCode ==scope.row.fileType" 
               :key="item.dictCode"
               >{{item.dictName}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="imageUrl"  label="图片路径"  min-width="180"> 
+        <el-table-column prop="fileUrl"  label="图片路径"  min-width="180"> 
           <template slot-scope="scope">
-            <img :src="scope.row.imageUrl"/>
+            <img :src="scope.row.fileUrl"/>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="90" fixed="right">

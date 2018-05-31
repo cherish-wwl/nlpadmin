@@ -27,6 +27,12 @@
       <el-table-column prop="academyName" label="机构名称" min-width="150"> 
         <template slot-scope="scope">{{scope.row.academyName||''}}</template>
       </el-table-column>
+      <el-table-column prop="academyName" label="部门名称" min-width="150"> 
+        <template slot-scope="scope">{{scope.row.groupName||''}}</template>
+      </el-table-column>
+      <el-table-column prop="academyName" label="所有人名称" min-width="150"> 
+        <template slot-scope="scope">{{scope.row.professorName||''}}</template>
+      </el-table-column>
       <el-table-column prop="forwardType" label="跳转方式" min-width="150" :formatter="transferforwardType"> 
         <template slot-scope="scope">{{transferforwardType(scope.row)||''}}</template>
       </el-table-column>
@@ -35,6 +41,14 @@
       </el-table-column>
       <el-table-column prop="solutionUrl" label="访问路径" min-width="150"> 
         <template slot-scope="scope">{{scope.row.solutionUrl||''}}</template>
+      </el-table-column>
+      <el-table-column prop="isCharge" label="是否免费" min-width="150">
+        <template slot-scope="scope">
+          <span v-for="item in dictList"
+            v-if="item.parentCode =='012'&&item.dictCode ==scope.row.isCharge" 
+            :key="item.dictCode"
+            >{{item.dictName}}</span>
+        </template>
       </el-table-column>
       <el-table-column label="操作" width="90" fixed='right'>
         <template slot-scope="scope">
@@ -67,21 +81,41 @@
           <el-input v-if="item.isInput" v-model="form[item.prop]" auto-complete="off"></el-input>
           <el-input v-if="item.isTextarea" type="textarea" :autosize="{ minRows: 2, maxRows: 6}" :rows="2" v-model="form[item.prop]" auto-complete="off"></el-input>
           <el-select v-if="item.isSelect" v-model="form[item.prop]" placeholder="请选择">
-              <el-option 
-                v-if="item.isAcademy"
-                v-for="child in academyList"
-                :key="child.id" :label="child.academyName" 
-                :value="child.id">
-              </el-option>
-              <template v-if="item.isDict">
-              <el-option 
-                v-for="child in dictList" v-if="child.parentCode ==item.parentCode" 
-                :key="child.dictCode" :label="child.dictName" 
-                :value="child.dictCode">
-              </el-option>
-              </template>
+            <el-option 
+              v-for="child in dictList" v-if="child.parentCode ==item.parentCode" 
+              :key="child.dictCode" :label="child.dictName" 
+              :value="child.dictCode">
+            </el-option>         
           </el-select>
-        </el-form-item> 
+        </el-form-item>  
+        <el-form-item label="图片：" class="width50">
+          <el-select v-model="form.solutionIcon" placeholder="请选择">
+              <el-option v-for="item in imgFileList"
+              :key="item.imageId" :label="item.fileDesc" :value="item.imageId"></el-option>
+          </el-select>
+          <img        
+              v-for="item in imgFileList" 
+              :key="item.imageId" 
+              v-if="form.solutionIcon && form.solutionIcon == item.imageId"
+              :src="item.fileUrl" class="avatar">
+        </el-form-item>
+        <el-form-item label="所属学校：" class="width50" prop="academyId">
+          <el-select v-model="form.academyId" placeholder="请选择" @change="changeAcademy"> 
+            <el-option v-for="item in academyList" :key="item.id" :value="item.id" :label="item.academyName"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="课题组／研究方向：" class="width50" prop="groupId">
+          
+          <el-select v-model="form.groupId" placeholder="请选择" @change="changeGroup">
+            <el-option v-for="item in academyGroupList" :label="item.groupName" :key="item.groupId" :value="item.groupId"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="所有者：" class="width50" prop="professorId2">
+          <el-select v-model="form.academyName" placeholder="请选择">
+            <el-option v-for="item in academyProfessorList" :label="item.professorName" :key="item.id" :value="item.id"></el-option>
+          </el-select>
+        </el-form-item>
+        
       </el-form>
       <!-- 接入信息 -->
       <el-checkbox :disabled="disabledEntryInfo" v-model="showEntryInfo">{{hasEntryInfo == true ?'编辑接入信息':'添加接入信息'}}</el-checkbox>
@@ -99,8 +133,10 @@
 <script>
 import { solutionList, addSolution, delSolution, updateSolution, addSolutionEntryInfo, getSolutionEntryInfo, updateSolutionEntryInfo } from '@/api/solutions/solutionsManage'
 import { getSchoolsList } from '@/api/systemManager/organization'
-
+import { academyGroupList, academyProfessorList } from '@/api/service.js'
+import { getFileList } from '@/api/uploadFile.js'
 import { mapGetters } from 'vuex'
+
 import { EntryInfo } from '@/views/solutions/solutionsManage/components'
 export default {
   computed: {
@@ -113,6 +149,7 @@ export default {
   },
   data () {
     return {
+      professorId:'',
       entryInfoStatus:0,//0:代表add 1：edit
       hasEntryInfo:false,
       disabledEntryInfo:false,
@@ -133,8 +170,12 @@ export default {
         solutionDesc:"",
         solutionIcon:"",
         solutionId:'',
+        isCharge:'',
         solutionName : "",
         solutionUrl:"",
+        groupId:'',
+        professorId:"",
+        professorName:''
       },
       
       initForm:{
@@ -145,8 +186,12 @@ export default {
         solutionDesc:"",
         solutionIcon:"",
         solutionId:'',
+        isCharge:'',
         solutionName : "",
         solutionUrl:"",
+        groupId:'',
+        professorId:"",
+        professorName:"",
       },
       formData:[
         {
@@ -164,23 +209,14 @@ export default {
           isInput:true,
           isTextarea:false,
         },
-        {
-          name:'图片',
-          prop:'solutionIcon',
-          labelWidth:'180px',
-          isInput:true,
-          isTextarea:false,
-        },
-        {
-          name:'机构名称',
-          prop:'academyId',
-          labelWidth:'180px',
-          isInput:false,
-          isTextarea:false,
-          isSelect:true,
-          isDict:false,
-          isAcademy:true
-        },
+
+        // {
+        //   name:'图片',
+        //   prop:'solutionIcon',
+        //   labelWidth:'180px',
+        //   isInput:true,
+        //   isTextarea:false,
+        // },      
         {
           name:'访问路径',
           prop:'solutionUrl',
@@ -188,41 +224,59 @@ export default {
           isInput:true,
           isTextarea:false,
         },
-        // {
-        //   name:'机构名称',
-        //   prop:'academyName',
-        //   labelWidth:'180px',
-        //   isInput:true,
-        //   isTextarea:false,
-        // },
-       
+        {
+          name:'是否免费',
+          prop:'isCharge',
+          labelWidth:'180px',
+          parentCode:'012',
+          isInput:false,
+          isTextarea:false,
+          isSelect:true
+        },
         {
           name:'跳转方式',
           prop:'forwardType',
           labelWidth:'180px',
-          isDict:true,
-          isAcademy:false,
           parentCode:'011',
           isInput:false,
           isTextarea:false,
           isSelect:true
         },
-        // {
-        //   name:'接入时间',
-        //   prop:'acceptTime',
-        //   labelWidth:'180px',
-        //   isInput:true,
-        //   isTextarea:false,
-        // }
+       
       ],
-      // dictList:'',
       academyList:'',
       vaildataEntryInfo: false,  //用于记录接入信息 是否验证通过 
       entryInfo:null,  //用于暂存 接入信息
-      solutionId:''
+      solutionId:'',
+      academyGroupList:'',
+      academyProfessorList:'',
+      imgFileList:[],
     }
   },
   methods:{
+    // 改变所属学校 级联更改课题组
+    changeAcademy(val){
+        // 课题组／研究方向
+        console.log("改变所属学校 级联更改课题组")
+       
+        academyGroupList({id:val}).then(response => {  
+          this.form.groupId = ''
+          this.form.academyName = ""
+          this.academyProfessorList = []
+          this.academyGroupList = response.data
+        })
+
+    },
+    // 改变课题组 级联更改所有者
+    changeGroup(val){
+       console.log("改变课题组 级联更改所有者")
+        // 所有者
+        academyProfessorList({groupId:val}).then(response => {
+          this.form.academyName = ""
+          this.academyProfessorList = response.data
+        })
+        
+    },
     // 翻译接入方式
     transferforwardType(row){
       if(!row.forwardType){
@@ -281,11 +335,23 @@ export default {
       console.log("编辑") 
       console.log(row)
       // row.academyId =row.academyId + 0
+      // 初始化下拉选
+      // 课题组／研究方向
+      academyGroupList({id:row.academyId}).then(response => {  
+          this.academyGroupList = response.data
+      })
+        // 所有者
+      academyProfessorList({groupId:row.groupId}).then(response => {
+          this.academyProfessorList = response.data
+      })
       this.form = row
+      // 使用professorId  绑定 下拉选失败 未知原因
+      this.form.academyName  = this.form.professorId
       this.mode = mode
       this.dialogFormVisible = true
       this.entryInfoStatus = 1 //0:代表add 1：edit
       this.solutionId = row.solutionId
+      
       getSolutionEntryInfo({serviceId:this.solutionId}).then(res =>{
         if(res.data == null){
           this.showEntryInfo = false
@@ -344,8 +410,12 @@ export default {
     //提交表单
     submitForm(formName){
       console.log(this.form)
+     
       // 验证解决方案信息
       this.$refs[formName].validate((valid) => {
+        // 使用professorId  绑定 下拉选失败 未知原因
+        this.form.professorId  = this.form.academyName
+        this.form.academyName = ''
         // 验证接入信息
         if(this.showEntryInfo){
           this.$refs.entryInfo.submitForm('ruleForm')
@@ -424,6 +494,9 @@ export default {
       // console.log(this.$store.state.app)
       getSchoolsList().then( res => {
         this.academyList = res.data
+      })
+      getFileList({ fileType:"013005" }).then(response =>{
+        this.imgFileList = response.data
       })
     },0)
     

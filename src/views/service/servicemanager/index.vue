@@ -22,6 +22,14 @@
           <el-table-column prop="academyName" label="所属学校" min-width="150"> </el-table-column>
           <el-table-column prop="professorName" label="所有者" min-width="150"></el-table-column>
           <el-table-column prop="serviceState" label="服务状态" min-width="150"></el-table-column>
+          <el-table-column prop="isCharge" label="是否免费" min-width="150">
+            <template slot-scope="scope">
+              <span v-for="item in dictList"
+                v-if="item.parentCode =='012'&&item.dictCode ==scope.row.isCharge" 
+                :key="item.dictCode"
+                >{{item.dictName}}</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="rel_time" label="发布时间" min-width="100" :formatter="formatterTime"> </el-table-column>
           <el-table-column label="操作" width="90" fixed="right">
             <template slot-scope="scope">
@@ -67,7 +75,8 @@ export default {
   computed: {
     ...mapGetters([
       'serviceId', 
-      'serviceName' 
+      'serviceName' ,
+      'dictList'
     ])
   },
 
@@ -184,7 +193,10 @@ export default {
         })
         return 
       }
-      
+      this.nodeInfo={
+        name:this.serviceName,
+        id:this.currentNodeId
+      }
       this.type = type
       if(type == 1){
         // 编辑
@@ -211,13 +223,18 @@ export default {
   },
   watch:{
     $route(){
-      // console.log(this.$route.params.servicerId)
+      
+      console.log("servicerId"+this.$route.params.servicerId)
+     
       this.currentNodeId = this.$route.params.servicerId
-      this.refreshLoadingData()
-      this.nodeInfo={
-        name:this.serviceName,
-        id:this.servicerId
-      }
+       if(this.currentNodeId){
+          this.refreshLoadingData()
+          this.nodeInfo={
+            name:this.serviceName,
+            id:this.servicerId
+          }
+       }
+      
       // console.log(this.serviceName)
     }
   },
@@ -226,7 +243,7 @@ export default {
     this.refreshLoadingData()
     this.nodeInfo={
       name:this.serviceName,
-      id:this.servicerId
+      id:this.currentNodeId
     }
     // console.log(this.serviceName)
   }

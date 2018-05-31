@@ -2,6 +2,34 @@
   <div class="dashboard-container">
     <div class="dashboard-text">name:{{name}}</div>
     <div class="dashboard-text">roles:<span v-for='role in roles' :key='role'>{{role}}</span></div>
+    <br >
+    <span>更新日志</span>
+    <br />
+    <el-tabs v-model="activeName2" type="card">
+        <el-tab-pane label="管理平台" name="first">
+          <span>2018年5月31日</span>
+          <br />
+          <ul>
+            <li>
+              服务管理页面：添加字段（isCharge:是否免费字段）；修改图片字段（修改为下拉选）
+            </li>
+            <li>
+              解决方案管理页面：添加字段（isCharge:是否免费字段；groupId：团队id；professorId:教练id）；修改图片字段（修改为下拉选）
+            </li>
+          </ul>
+        </el-tab-pane>
+        <el-tab-pane label="展示平台" name="second">
+          <span>2018年5月31日</span>
+          <br />
+          <ul>
+            <li>
+              导航栏悬浮效果取消
+            </li>
+            
+          </ul>
+        </el-tab-pane>
+  </el-tabs>
+   
   </div>
 </template>
 
@@ -15,6 +43,11 @@ export default {
       'name',
       'roles'
     ])
+  },
+  data () {
+    return {
+      activeName2:'first'
+    }
   }
 }
 </script>

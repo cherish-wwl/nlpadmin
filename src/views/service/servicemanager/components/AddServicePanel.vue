@@ -26,15 +26,29 @@
                     :key="item.dictCode" :label="item.dictName" :value="item.dictCode"></el-option>
                 </el-select>
             </el-form-item>
+            <el-form-item label="是否免费：" class="width50" prop="methodType">
+                <el-select v-model="serviceInfo.isCharge" placeholder="请选择">
+                    <el-option v-for="item in dictList" v-if="item.parentCode =='012'" 
+                    :key="item.dictCode" :label="item.dictName" :value="item.dictCode"></el-option>
+                </el-select>
+            </el-form-item>
             <el-form-item label="服务调用路径：" class="width50" prop="url">
-              <el-input v-model="serviceInfo.url" placeholder="请输入调用路径" ></el-input>
+              <el-input v-model="serviceInfo.url" placeholder="请输入服务调用路径" ></el-input>
             </el-form-item>
             
             <el-form-item label="banner路径：" class="width50">
-              <el-input v-model="serviceInfo.banner" placeholder="请输入服务调用路径" ></el-input>
+              <el-input v-model="serviceInfo.banner" placeholder="请输入banner路径" ></el-input>
             </el-form-item>
             <el-form-item label="图片：" class="width50">
-              <el-input v-model="serviceInfo.serviceIcon" placeholder="请输入服务调用路径" ></el-input>
+                <el-select v-model="serviceInfo.serviceIcon" placeholder="请选择">
+                    <el-option v-for="item in imgFileList"
+                    :key="item.imageId" :label="item.fileDesc" :value="item.imageId"></el-option>
+                </el-select>
+                <img        
+                    v-for="item in imgFileList" 
+                    :key="item.imageId" 
+                    v-if="serviceInfo.serviceIcon && serviceInfo.serviceIcon == item.imageId"
+                    :src="item.fileUrl" class="avatar">
             </el-form-item>
             <el-form-item label="服务状态：" class="width50" prop="serviceState">
                 <el-select v-model="serviceInfo.serviceState" placeholder="请选择">
@@ -47,16 +61,17 @@
                 <el-option v-for="item in academyList" :key="item.id" :value="item.id" :label="item.academyName"></el-option>
               </el-select>
             </el-form-item>
+            <el-form-item label="课题组／研究方向：" class="width50" prop="groupId">
+              <el-select v-model="serviceInfo.groupId" placeholder="请选择" @change="changeGroup">
+                <el-option v-for="item in academyGroupList" :label="item.groupName" :key="item.groupId" :value="item.groupId"></el-option>
+              </el-select>
+            </el-form-item>
             <el-form-item label="所有者：" class="width50" prop="professorId">
               <el-select v-model="serviceInfo.professorId" placeholder="请选择">
                 <el-option v-for="item in academyProfessorList" :label="item.professorName" :key="item.id" :value="item.id"></el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="课题组／研究方向：" class="width50" prop="groupId">
-              <el-select v-model="serviceInfo.groupId" placeholder="请选择">
-                <el-option v-for="item in academyGroupList" :label="item.groupName" :key="item.groupId" :value="item.groupId"></el-option>
-              </el-select>
-            </el-form-item>
+           
             <h5 class="customModeTitle text_center">自定义模式</h5>
             <div class="customMode" v-for="(relate, index) in serviceInfo.relates" :key="index" >
                 <div class="left">
@@ -70,7 +85,16 @@
                     <el-input v-model="relate.title" placeholder="请输入名称" ></el-input>
                 </el-form-item>
                 <el-form-item label="图标" class="width50"  >
-                    <el-input v-model="relate.banner" placeholder="请输入图标" ></el-input>
+                   
+                    <el-select v-model="relate.banner" placeholder="请选择">
+                        <el-option v-for="item in imgFileList2"
+                        :key="item.imageId" :label="item.fileDesc" :value="item.imageId"></el-option>
+                    </el-select>
+                    <img        
+                        v-for="item in imgFileList2" 
+                        :key="item.imageId" 
+                        v-if="relate.banner && relate.banner == item.imageId"
+                        :src="item.fileUrl" class="avatar" />
                 </el-form-item>
                 <el-form-item label="描述" class="width50" >
                     <el-input v-model="relate.content" placeholder="请输入描述" ></el-input>
@@ -97,6 +121,7 @@
 </template>
 <script>
 import { academyList, academyGroupList, academyProfessorList, addServiceInfo ,getServiceInfo, updataServiceInfo} from '@/api/service.js'
+import { getFileList } from '@/api/uploadFile.js'
 import { mapGetters } from 'vuex'
 export default {
     props:[
@@ -107,7 +132,7 @@ export default {
         ...mapGetters([
         'isEditMode', 
         'hasServerEntry' ,
-        'dictList'
+        'dictList',
         ])
     },
     data () {
@@ -118,6 +143,7 @@ export default {
                 serviceDescr:'',
                 serviceType:this.currentNode.id,//所属类别
                 className:this.currentNode.name,
+                isCharge:"",
                 url:'',
                 in_arg:'',
                 banner:'',
@@ -146,6 +172,7 @@ export default {
                 serviceDescr:'',
                 serviceType:this.currentNode.id,//所属类别
                 className:this.currentNode.name,
+                isCharge:"",
                 url:'',
                 in_arg:'',
                 banner:'',
@@ -174,17 +201,21 @@ export default {
             academyList:[],
             academyGroupList:[],
             academyProfessorList:[],
-            // dictList:[],
+            imgFileList:[],
+            imgFileList2:[],
             rules: {
                 serviceName: [
                     { required: true, message: '请输入服务名称', trigger: 'blur' },
-                    { min: 3, max: 50, message: '长度在 3 到 50 个字符', trigger: 'blur' }
+                    { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
                 ],
                 className:[
                     { required: true, message: '请选择所属类型', trigger: 'change' }
                 ],
                 methodType:[
                     { required: true, message: '请选择服务调用方式', trigger: 'change' }                     
+                ],
+                isCharge:[
+                    { required: true, message: '请选择服务调用方式', trigger: 'change' }      
                 ],
                 url: [
                     { required: true, message: '请选择服务调用路径', trigger: 'change' }
@@ -287,24 +318,35 @@ export default {
            // 课题组／研究方向
             academyGroupList({id:val}).then(response => {  
                 this.serviceInfo.groupId = ''
+                this.serviceInfo.professorId = ''
+                this.academyProfessorList = []
                 this.academyGroupList = response.data
             })
+           
+        },
+         // 改变课题组 级联更改所有者
+        changeGroup(val){
+            console.log("改变课题组 级联更改所有者")
             // 所有者
-            academyProfessorList({academyId:val}).then(response => {
+            academyProfessorList({groupId:val}).then(response => {
                 this.serviceInfo.professorId = ''
                 this.academyProfessorList = response.data
             })
-        }
+            
+        },
     },
     mounted(){
         // 所属学校
         academyList().then(response => {
             this.academyList = response.data
         })
-        // 获取字典表所有数据
-        // dictList().then(response => {
-        //     this.dictList = response.data
-        // })
+        // 获取图片
+        getFileList({ fileType:"013005" }).then(response =>{
+            this.imgFileList = response.data
+        })
+        getFileList({ fileType:"013006" }).then(response =>{
+            this.imgFileList2 = response.data
+        })
         console.log("为编辑状态  获取服务信息详情")
         // console.log(this.type)
         if(this.type == 1){
@@ -314,7 +356,7 @@ export default {
                     this.academyGroupList = response.data
                 })
                  // 所有者
-                academyProfessorList({academyId:response.data.academyId}).then(response => {
+                academyProfessorList({groupId:response.data.groupId}).then(response => {
                     this.academyProfessorList = response.data
                 })
                 if(!response.data.groupId){
@@ -350,7 +392,10 @@ export default {
         top: 0;
     }
 }
-
+.avatar{
+    display: block;
+    max-width: 230px;
+}
 .customModeTitle{
     color: #555050;
     position: relative;
