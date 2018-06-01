@@ -1,6 +1,6 @@
 <template>
     <div> 
-        <el-menu class="navbar navbar1 navbar2" mode="horizontal">
+        <el-menu class="navbar " mode="horizontal">
    
             <img class='logo' src='../../../assets/logo.png'/>
             <span class='logo_title'>中文信息深度处理开放创新平台</span>
@@ -52,6 +52,7 @@ export default {
     line-height: 50px;
     border-radius: 0px !important;
     border-bottom: none !important; 
+    background-color: #304156;
   .logo{
     vertical-align: sub;
   }
@@ -93,14 +94,12 @@ export default {
     }
   }
 }
-.navbar1{
-  background-color: #304156;
-}
-.navbar2{
-    z-index: 2000;
-    position: fixed;
-    top: 0;
-    width: 100%;
-}
+
+// .navbar2{
+//     z-index: 2000;
+//     position: fixed;
+//     top: 0;
+//     width: 100%;
+// }
 </style>
 

@@ -89,7 +89,7 @@ export default {
 .navbar3{
   z-index: 2000;
   position: fixed;
-  top: 50px;
+  top: 60px;
   width: 100%;
 }
 </style>

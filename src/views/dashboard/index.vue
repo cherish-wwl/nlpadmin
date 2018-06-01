@@ -5,6 +5,8 @@
     <br >
     <span>更新日志</span>
     <br />
+    <br />
+    <br />
     <el-tabs v-model="activeName2" type="card">
         <el-tab-pane label="管理平台" name="first">
           <span>2018年5月31日</span>
@@ -26,6 +28,16 @@
               导航栏悬浮效果取消
             </li>
             
+          </ul>
+          <span>2018年6月1日</span>
+          <br />
+          <ul>
+            <li>
+              服务列表页面 ：查看详情 跳转问题（添加两个字段 forwordType，url）；
+            </li>
+            <li>
+              小牛详情页面：修复专家跳转出现两个页面问题
+            </li>
           </ul>
         </el-tab-pane>
   </el-tabs>

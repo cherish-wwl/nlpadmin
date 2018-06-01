@@ -1,14 +1,22 @@
 <template>
-  <div class="app-wrapper" :class="{hideSidebar:!sidebar.opened}">
-	
-    <header-temp></header-temp>
-    <sidebar class="sidebar-container"></sidebar>
-    <div class="main-container">
-      
-      <navbar></navbar>
-      <app-main></app-main>
-    </div>
-  </div>
+	<el-container class="app-wrapper" >
+    <el-header class="navbar1">
+      <header-temp></header-temp>
+    </el-header>
+    <el-container>
+      <el-aside width="250px" :class="{hideSidebar:!sidebar.opened}">
+        <sidebar></sidebar>
+      </el-aside>
+      <el-main>
+        <div class="main-container">
+          <navbar></navbar>
+          <app-main></app-main>
+        </div>
+      </el-main>
+    </el-container>
+  </el-container>
+
+
 </template>
 
 <script>
@@ -37,8 +45,14 @@ export default {
 @import "src/styles/mixin.scss";
 .app-wrapper {
   @include clearfix;
-  position: relative;
+  // position: relative;
   height: 100%;
   width: 100%;
+}
+.navbar1{
+  background-color: #304156;
+}
+.hideSidebar{
+  display: none;
 }
 </style>

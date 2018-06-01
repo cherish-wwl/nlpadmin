@@ -51,13 +51,16 @@ a:hover {
 
 //main-container全局样式
 .app-main{
-  min-height: 100%
+  min-height: 100%;
+  margin: 70px 15px;
 }
 
 .app-container {
   padding: 20px;
 }
-
+.el-main{
+  padding: 0;
+}
 
 .width100{
   width: 100%;

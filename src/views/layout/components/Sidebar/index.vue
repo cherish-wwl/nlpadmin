@@ -1,11 +1,11 @@
 <template>
-  <scroll-bar>
+  <!-- <scroll-bar> -->
       <div style='flex:1' class="siderbar">
         <div v-if='ztreeDataSourceSync.length>0'>
            <vue-ztree :list.sync='ztreeDataSourceSync' :func='nodeClick' :expand='expandClick'  :is-open='false' :is-check='false'></vue-ztree>
         </div>
       </div> 
-  </scroll-bar>
+  <!-- </scroll-bar> -->
 </template>
 
 <script>
