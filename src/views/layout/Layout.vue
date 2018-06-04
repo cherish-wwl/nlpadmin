@@ -10,7 +10,7 @@
       <el-main>
         <div class="main-container">
           <navbar></navbar>
-          <app-main></app-main>
+          <app-main :class="{hideleft:!sidebar.opened}"></app-main>
         </div>
       </el-main>
     </el-container>
@@ -48,6 +48,9 @@ export default {
   // position: relative;
   height: 100%;
   width: 100%;
+}
+.hideleft{
+  left: 0;
 }
 .navbar1{
   background-color: #304156;

@@ -38,8 +38,8 @@ export default {
 
 <style rel="stylesheet/scss" lang="scss" scoped>
 .navbar {
-  height: 50px;
-  line-height: 50px;
+  // height: 50px;
+  // line-height: 50px;
   border-radius: 0px !important;
  
   .logo{
@@ -88,8 +88,8 @@ export default {
 }
 .navbar3{
   z-index: 2000;
-  position: fixed;
-  top: 60px;
+  // position: fixed;
+  // top: 60px;
   width: 100%;
 }
 </style>

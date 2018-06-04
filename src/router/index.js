@@ -91,17 +91,30 @@ export const constantRouterMap = [
     redirect: '/systemManager/professorManage',
     meta: { title: '系统管理', icon: 'tree' ,hasChildren:true },
     children: [
+      
+      {
+        path: 'acadmyManage',
+        name: 'acadmyManage',
+        meta: { title: '大学管理'},
+        component: () => import('@/views/systemManager/acadmyManage/index'), 
+      },
+      {
+        path: 'departmentManage',
+        name: 'departmentManage',
+        meta: { title: '部门管理'},
+        component: () => import('@/views/systemManager/departmentManage/index'), 
+      },
       {
         path: 'professorManage',
         name: 'professorManage',
-        meta: { title: '机构与人员管理'},
-        component: () => import('@/views/userManager/professorManage/index'), 
+        meta: { title: '教授管理'},
+        component: () => import('@/views/systemManager/professorManage/index'), 
       },
       {
         path:'serverManager',
         name: 'serverManager',
         meta: { title: '服务器管理'},
-        component: () => import('@/views/userManager/serverManage/index'), 
+        component: () => import('@/views/systemManager/serverManage/index'), 
       },
       {
         path: 'serviceClassManager',
@@ -112,13 +125,13 @@ export const constantRouterMap = [
       {
         path: 'uploadFileManager',
         name: 'uploadFileManager',
-        component: () => import('@/views/userManager/uploadFileManage/index'),
+        component: () => import('@/views/systemManager/uploadFileManage/index'),
         meta: { title: '图片管理' }
       }, 
       {
         path: 'dictManager',
         name: 'dictManager',
-        component: () => import('@/views/userManager/dictManage/index'),
+        component: () => import('@/views/systemManager/dictManage/index'),
         meta: { title: '字典表管理' }
       }, 
     ]

@@ -19,6 +19,19 @@
               解决方案管理页面：添加字段（isCharge:是否免费字段；groupId：团队id；professorId:教练id）；修改图片字段（修改为下拉选）
             </li>
           </ul>
+          <span>2018年6月4日</span>
+          <br />
+          <ul>
+            <li>
+              字典表管理页面：完成展示列表+分页+查询功能
+            </li>
+            <li>
+              将人员与机构管理页面分为大学管理页面，部门管理页面，教授管理页面
+            </li>
+            <li>
+              大学管理页面：增、删、改、查 功能 基本完成
+            </li>
+          </ul>
         </el-tab-pane>
         <el-tab-pane label="展示平台" name="second">
           <span>2018年5月31日</span>

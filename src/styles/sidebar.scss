@@ -102,11 +102,13 @@
     top: 60px;
     bottom: 0;
     overflow: auto;
-    width: 250px;
+    width: 250px; 
+    margin-bottom: 15px;
     ul.ztree {
       background-color: #ffffff00 !important;
-      overflow: hidden;
+      overflow: inherit;
       border: none;
+      padding-bottom: 30px;
       li a{
         color: #fff;
       }

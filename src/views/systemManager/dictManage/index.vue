@@ -28,7 +28,7 @@
         <el-table-column prop="dictName"  label="dictName"  min-width="180"> </el-table-column>
 
         <el-table-column prop="dictValue"  label="dictValue"  min-width="180"> </el-table-column>
-        <el-table-column prop="natAccount"  label="createUser"  min-width="180"> </el-table-column>
+        <el-table-column prop="createUser"  label="createUser"  min-width="180"> </el-table-column>
         <el-table-column prop="createTime"  label="createTime"  min-width="180"> </el-table-column>
         
         <el-table-column prop="dictState"  label="dictState"  min-width="180"> </el-table-column>
@@ -84,6 +84,7 @@
 <script>
 import { Message } from 'element-ui'
 import { dictList } from '@/api/common.js'
+import { dictList as pageDictList} from '@/api/dict.js'
 
 export default {
   data () {
@@ -169,10 +170,10 @@ export default {
       dictList().then( res=>{
         this.dictList = res.data
       }) 
-      dictList({
+      pageDictList({
         pageNow:this.currentPage,
         pageSize:this.pageSize,
-        parentCode:this.searchType,}).then( res=>{
+        dictCode:this.searchType,}).then( res=>{
         this.dictList = res.data
         this.tableData = res.data
         this.totalNumber = res.total

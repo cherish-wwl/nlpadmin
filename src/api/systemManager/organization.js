@@ -2,10 +2,11 @@ import request from '@/utils/request'
 
 
 // 获取学校列表
-export function getSchoolsList(){
+export function getSchoolsList(params){
   return request({
     url: '/academy/list',
-    method: 'post'
+    method: 'post',
+    params
   })
 
 }
