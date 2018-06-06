@@ -348,16 +348,16 @@ export default{
                 	//
                 	m.isExpand = !m.isExpand;
            
-                	if(typeof this.expandfunc == "function" && m.isExpand) {
-                		if(m.loadNode!=2) {
-		                	//
-		                    this.expandfunc.call(null,m);
-		                }else {
-		                	m.isFolder = !m.isFolder;
-		                }
-	                } else {
+                	// if(typeof this.expandfunc == "function" && m.isExpand) {
+                	// 	if(m.loadNode!=2) {
+		              //   	//
+											// this.expandfunc.call(null,m);
+		              //   }else {
+		              //   	m.isFolder = !m.isFolder;
+		              //   }
+	                // } else {
                         m.isFolder = !m.isFolder;
-	                }
+	                // }
                 },
                 enterFunc(m){
                     m.hover = true;

@@ -21,7 +21,15 @@
           <el-table-column prop="banner" label="banner路径" min-width="150"> </el-table-column>
           <el-table-column prop="academyName" label="所属学校" min-width="150"> </el-table-column>
           <el-table-column prop="professorName" label="所有者" min-width="150"></el-table-column>
-          <el-table-column prop="serviceState" label="服务状态" min-width="150"></el-table-column>
+          <el-table-column prop="serviceState" label="服务状态" min-width="150">
+            <template slot-scope="scope">
+                <span v-for='item in dictList' 
+                v-if="scope.row.serviceState == item.dictCode" 
+                :key="item.dictCode">
+                  {{ item.dictName}}
+                </span>
+            </template>
+          </el-table-column>
           <el-table-column prop="isCharge" label="是否免费" min-width="150">
             <template slot-scope="scope">
               <span v-for="item in dictList"
@@ -229,6 +237,7 @@ export default {
       this.currentNodeId = this.$route.params.servicerId
        if(this.currentNodeId){
           this.refreshLoadingData()
+          this.addPanel = false
           this.nodeInfo={
             name:this.serviceName,
             id:this.servicerId

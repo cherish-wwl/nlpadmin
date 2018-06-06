@@ -10,9 +10,8 @@
       <br />
       <br />
       <el-table :data="tableData"  border style="width: 100%" v-loading="loading">
-        <el-table-column prop="id" label="序号" type="index" align='center'> </el-table-column>
-        <el-table-column prop="academyName" label="名称" min-width="80"> </el-table-column>
-        <el-table-column prop="academyDesc" label="描述" min-width="350"> 
+        <el-table-column prop="academyName" label="大学/机构名称" min-width="150"> </el-table-column>
+        <el-table-column prop="academyDesc" label="大学/机构描述" min-width="350"> 
           <template slot-scope="scope">
             <span :title="scope.row.academyDesc">
                {{ scope.row.academyDesc.substring(0,100) }}
@@ -20,10 +19,15 @@
                </span>
           </template>
         </el-table-column>
-        <el-table-column prop="academyURL" label="访问地址" min-width="150" > </el-table-column>       
+        <el-table-column prop="imageUrl" label="大学/机构图片" min-width="250"></el-table-column>
+        <el-table-column prop="academyPhone" label="大学/机构联系电话" min-width="150"></el-table-column>
+        <el-table-column prop="academyURL" label="大学/机构主页" min-width="150" > </el-table-column>
+        <el-table-column prop="academyUpdateTime" label="更新时间" min-width="150"></el-table-column>       
         <el-table-column label="操作" width="90" fixed="right">
           <template slot-scope="scope">
-            <el-button @click="deleteAcademy(scope.row)" type="text" size="small">删除</el-button>
+            <el-button @click="stopAcademy(scope.row)" type="text" size="small">
+              {{ scope.row.academyState == '010001' ?"停用":'启用'}}
+            </el-button>
             <el-button @click="editAcademy(scope.row)" type="text" size="small">编辑</el-button>
           </template>
         </el-table-column>
@@ -49,12 +53,24 @@
          :prop="item.prop" 
          :rules="item.rules">   
           <el-input v-if="item.isInput" v-model="form[item.prop]" auto-complete="off"></el-input>
-          <el-input v-if="item.isTextarea" type="textarea" :autosize="{ minRows: 2, maxRows: 6}" :rows="2" v-model="form[item.prop]" auto-complete="off"></el-input>
-          <el-select v-if="item.isSelect" v-model="form[item.prop]" placeholder="请选择">
+          <el-input v-else-if="item.isTextarea" type="textarea" :autosize="{ minRows: 2, maxRows: 6}" :rows="2" v-model="form[item.prop]" auto-complete="off"></el-input>
+          <el-select v-else-if="item.isSelect" v-model="form[item.prop]" placeholder="请选择">
              <el-option v-for="child in dictList" v-if="child.parentCode ==item.parentCode" 
                     :key="child.dictCode" :label="child.dictName" :value="child.dictCode"></el-option>
           </el-select>
+          <template v-else-if="item.isImage" >
+            <el-select v-model="form[item.prop]" placeholder="请选择">
+                <el-option v-for="item in imgFileList"
+                :key="item.imageId" :label="item.fileDesc" :value="item.imageId"></el-option>
+            </el-select>
+            <img        
+                v-for="item in imgFileList" 
+                :key="item.imageId" 
+                v-if="form.academyImg == item.imageId"
+                :src="item.imageId" class="avatar" />
+          </template>
         </el-form-item>
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -67,6 +83,7 @@
 
 <script>
 import { getSchoolsList, addAcademy, updateAcademy,  delAcademy } from '@/api/systemManager/organization'
+import { getFileList } from '@/api/uploadFile.js'
 import { mapGetters } from 'vuex'
 export default {
   computed: {
@@ -83,26 +100,34 @@ export default {
       loading:false,
       searchKeyWord:'',
       dialogFormVisible:false,
+      imgFileList:[],
       form:{},
       formData:[ 
-          {name: '大学名称',
+          {name: '大学/机构名称',
           prop: 'academyName',
           rules:{ required: true, message: '名称不能为空', trigger: 'blur'},
           labelWidth:'150px',
           isInput:true,
-          isTextarea:false,
           },
-          {name: '描述',
+          {name: '大学/机构描述',
            prop: 'academyDesc',
            labelWidth: '150px',
-           isInput: false,
            isTextarea: true,
           },
-          {name: '访问路径',
+          {name: '大学/机构主页',
            prop: 'academyURL',
            labelWidth: '150px',
            isInput: true,
-           isTextarea: false,
+          },
+          {name: '大学/机构联系电话',
+           prop: 'academyPhone',
+           labelWidth: '150px',
+           isInput: true,
+          },
+          {name: '大学/机构图片',
+           prop: 'academyImg',
+           labelWidth: '150px',
+           isImage: true,
           },
         ],
       dialogTitle:'',
@@ -145,18 +170,30 @@ export default {
         academyName:'',
         academyDesc:'',
         academyURL:'',
+        academyPhone:'',
+        academyImg:'',
         id:''
       }
-      this.dialogTitle = '添加人员'
+      this.dialogTitle = '添加'
       this.edieMode = false
       this.dialogFormVisible = true
     },
     // 编辑大学
     editAcademy (row) {
-      this.form = row
-      this.dialogTitle = '编辑人员'
-      this.edieMode = true
-       this.dialogFormVisible = true
+        // this.$refs['ruleForm'].resetFields();
+      this.form = {
+        academyName:'',
+        academyDesc:'',
+        academyURL:'',
+        academyPhone:'',
+        academyImg:'',
+        id:''
+      }
+      this.form = row   
+     
+      this.dialogTitle = '编辑'
+        this.edieMode = true
+        this.dialogFormVisible = true
     },
     // 删除大学
     deleteAcademy(row){   
@@ -165,7 +202,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        // 删除人员
+        // 删除
         delAcademy({id:row.id}).then(response => {
           this.loadingData()
           this.$message({
@@ -177,6 +214,38 @@ export default {
         this.$message({
           type: 'info',
           message: '已取消删除'
+        })          
+      })
+    },
+     // 启用/停用大学
+    stopAcademy(row){   
+      let message = '此操作将停用该数据, 是否继续?'
+      if(row.academyState != '010001'){//当前为启用状态
+        message = '此操作将启用该数据, 是否继续?'
+        row.academyState = '010001'
+      }else{
+        row.academyState = '010002'
+      }
+      this.$confirm(message, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 启用/停用
+        updateAcademy(row).then(response => {
+          if(this.tableData.length == 1){
+            this.currentPage = this.currentPage -1
+          }
+          this.loadingData()
+          this.$message({
+            type: 'success',
+            message: '操作成功!'
+          })
+        })    
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消操作'
         })          
       })
     },
@@ -217,6 +286,9 @@ export default {
   mounted () {
     setTimeout(()=>{
       this.loadingData()
+      getFileList({ fileType:"013001" }).then(response =>{
+        this.imgFileList = response.data
+      })
     },10)  
   }
 }
@@ -245,40 +317,4 @@ export default {
       width: 77.5%;
     }
   }
-  .collapseDiv{
-    overflow-y: auto;
-    overflow-x: hidden;
-    max-height: 450px;
-    
-    ul.ul-item{
-      list-style: none;
-      padding: 0px;
-      li{
-        padding: 10px 5px;
-        margin-left: 20px;
-        border-left: 3px solid #fff;
-        &.active, &:hover{
-          border-left: 3px solid #409eff;
-          background-color: #409eff3b;
-        }
-        &:not(:last-child){
-          border-bottom: 1px solid #e3dfdf;
-        }
-      }
-
-    }
-    .el-collapse-item{
-      &.active{
-        .el-collapse-item__header{
-          background-color: #409eff;
-          color: #fff;
-        }
-      }
-      &:hover{
-        background-color: #409eff3b;
-      }
-      
-    }
-  }
-  
 </style>

@@ -1,69 +1,58 @@
 <template>
   <el-row :gutter="20">
-    <el-col :span="5">
+    <br />
+    <span>大学/机构：</span>
+    <el-select v-model="academyId" v-on:change='querySearch' placeholder="请选择">
+       <el-option label="全部" value="">
+      </el-option>
+      <el-option
+        v-for="item in academyList"
+        :key="item.id" :label="item.academyName" :value="item.id">
+      </el-option>
+    </el-select>
+    <span>关键字：</span>
+    <el-input
+      placeholder="请输入关键字"
+      suffix-icon="el-icon-search"
+      v-model="searchKeyWord"
+      v-on:change='querySearch' >
+    </el-input>
+    <el-button type="primary" @click="addDepartment" size='small'>添加</el-button>
+    <br />
+    <br />
+    <el-table :data="tableData"  border style="width: 100%" v-loading="loading">   
+      <el-table-column prop="groupName" label="学院/研究室名称" min-width="180"></el-table-column>      
+      <el-table-column prop="groupDesc" label="描述" min-width="350"> 
+        <template slot-scope="scope">
+          <span :title="scope.row.groupDesc" v-if="scope.row.groupDesc">
+              {{ scope.row.groupDesc.substring(0,100) }}
+              {{ scope.row.groupDesc.length>=100 ?"...":''}}
+              </span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="academyName" label="机构名称" min-width="180"> </el-table-column>
+      <el-table-column prop="imageUrl" label="图片" min-width="350"></el-table-column>
       
-      <div class="grid-content">
-        <div class="">
-          <el-button type="text" @click="addClick"><i class="el-icon-circle-plus-outline" ></i>新增</el-button>
-          <el-button type="text" @click="editClick"><i class="el-icon-edit"></i>编辑</el-button>
-          <el-button type="text" @click="deleteClick"><i class="el-icon-delete"></i>删除</el-button>
-        </div>
-        <el-collapse v-model="activeNames" @change="handleChange" accordion class="collapseDiv">
-          <el-collapse-item v-for="item in schoolsList" :class="currentNodeId == 's'+item.id?'active':''" 
-          :key="item.id" class="collapseItem" :title="item.academyName" :name="'s'+item.id">
-            <ul class="ul-item" v-if="item.children && item.children.length != 0">
-              <li v-for="child in item.children" 
-              :class="currentNodeId == child.groupId?'active':''" 
-              :key="child.groupId" 
-              @click="triggerReloadingTable(child)">
-                <a>{{child.groupName}}</a>
-              </li>  
-            </ul>    
-            <ul v-else style="list-style:none;">
-              
-              <li><el-button type="text" @click="addGroup"><i class="el-icon-circle-plus-outline" ></i>新增部门</el-button></li>
-            </ul>
-          </el-collapse-item>
-        </el-collapse>
-      </div>
-    </el-col>
-    <el-col :span="19">
-      
-      <el-input
-        placeholder="请输入关键字"
-        suffix-icon="el-icon-search"
-        v-model="searchKeyWord"
-        v-on:change='querySearch' >
-      </el-input>
-      <el-button type="primary" @click="addOrUpdateProfessor(0)" size='small'>添加人员</el-button>
-      <br />
-      <br />
-      <el-table :data="tableData"  border style="width: 100%" v-loading="loading">
-        <el-table-column prop="id" label="序号" type="index" align='center'> </el-table-column>
-        <el-table-column prop="professorName" label="人员名称" min-width="80"> </el-table-column>
-        <el-table-column prop="professorDesc" label="研究主要方向" width="250"> </el-table-column>
-        <el-table-column prop="professorSex" label="性别" min-width="150" :formatter="parseSex"> </el-table-column>       
-        <el-table-column prop="professorTitle" label="职称" min-width="150"> </el-table-column>
-
-        <el-table-column label="操作" width="90" fixed="right">
-          <template slot-scope="scope">
-            <el-button @click="deleteProfessor(scope.row)" type="text" size="small">删除</el-button>
-            <el-button @click="addOrUpdateProfessor(1,scope.row)" type="text" size="small">编辑</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <br />
-      <div class="block">     
-        <el-pagination  @size-change="handleSizeChange" 
-        @current-change="handleCurrentChange" 
-        :current-page="currentPage"
-        :page-sizes="[5, 10, 15, 30]"
-        :page-size="pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="totalNumber">
-        </el-pagination>
-      </div>
-    </el-col>
+      <el-table-column label="操作" width="90" fixed="right">
+        <template slot-scope="scope">
+          <el-button @click="stopDepartment(scope.row)" type="text" size="small">
+             {{ scope.row.groupState == '010001' ?"停用":'启用'}}
+          </el-button>
+          <el-button @click="editDepartment(scope.row)" type="text" size="small">编辑</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <br />
+    <div class="block">     
+      <el-pagination  @size-change="handleSizeChange" 
+      @current-change="handleCurrentChange" 
+      :current-page="currentPage"
+      :page-sizes="[5, 10, 15, 30]"
+      :page-size="pageSize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="totalNumber">
+      </el-pagination>
+    </div>
     <!-- 添加/编辑弹出框 -->
     <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" width="40%" >
       <el-form :model="form" ref="ruleForm">
@@ -74,12 +63,28 @@
          :prop="item.prop" 
          :rules="item.rules">   
           <el-input v-if="item.isInput" v-model="form[item.prop]" auto-complete="off"></el-input>
-          <el-input v-if="item.isTextarea" type="textarea" :autosize="{ minRows: 2, maxRows: 6}" :rows="2" v-model="form[item.prop]" auto-complete="off"></el-input>
-          <el-select v-if="item.isSelect" v-model="form[item.prop]" placeholder="请选择">
-             <el-option v-for="child in dictList" v-if="child.parentCode ==item.parentCode" 
-                    :key="child.dictCode" :label="child.dictName" :value="child.dictCode"></el-option>
+          <el-input v-else-if="item.isTextarea" type="textarea" :autosize="{ minRows: 2, maxRows: 6}" :rows="2" v-model="form[item.prop]" auto-complete="off"></el-input>
+          <el-select v-else-if="item.isAcademy" v-model="form[item.prop]" placeholder="请选择">
+            <el-option 
+              v-for="child in academyList"
+              :key="child.id" 
+              :label="child.academyName" 
+              :value="child.id">
+            </el-option>
           </el-select>
+          <template v-else-if="item.isImage" >
+            <el-select v-model="form[item.prop]" placeholder="请选择">
+                <el-option v-for="item in imgFileList"
+                :key="item.imageId" :label="item.fileDesc" :value="item.imageId"></el-option>
+            </el-select>
+            <img        
+                v-for="item in imgFileList" 
+                :key="item.imageId" 
+                v-if="form.groupImg == item.imageId"
+                :src="item.imageId" class="avatar" />
+          </template>
         </el-form-item>
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -91,497 +96,121 @@
 </template>
 
 <script>
-import { getSchoolsList, getGrouplist, getProfessorlist, 
-          addAcademy,addGroup, addProfessor,
-          updateAcademy, updateGroup,updateProfessor,
-          delAcademy,delGroup,delProfessor } from '@/api/systemManager/organization'
-import { dictList } from '@/api/common'
+import { getSchoolsList, getGrouplist, addGroup, updateGroup,  delGroup } from '@/api/systemManager/organization'
+import { getFileList } from '@/api/uploadFile.js'
+import { mapGetters } from 'vuex'
 export default {
- 
+  computed: {
+    ...mapGetters([
+    'dictList'
+    ])
+  },
   data() {
     return {  
-      activeNames:'',
-      loading: false,
       currentPage: 1,
       totalNumber: null,
       pageSize: 5,
       tableData: [],
+      loading:false,
+      academyList:'',
       searchKeyWord:'',
-      schoolsList: [],
-      academyId:'',
-      currentNodeId:'',  // 用于存放 机构id 和部门id，  由于机构id和部门id会一样 故存放机构id时加s ：s+机构id
-      currentNode:'',
       dialogFormVisible:false,
+      imgFileList:[],
+      academyId:'',
       form:{},
-      formData:{},
+      formData:[ 
+          {name: '学院/课题组名称',
+          prop: 'groupName',
+          rules:{ required: true, message: '名称不能为空', trigger: 'blur'},
+          labelWidth:'150px',
+          isInput:true,
+          },
+          {name: '学院/课题组描述',
+           prop: 'groupDesc',
+           labelWidth: '150px',
+           isTextarea: true,
+          },
+          {name: '所属学校',
+           prop: 'academyId',
+           labelWidth: '150px',
+           isAcademy: true,
+          },
+          {name: '学院/课题组图片',
+           prop: 'groupImg',
+           labelWidth: '150px',
+           isImage: true,
+          },
+        ],
       dialogTitle:'',
       edieMode: false,//false：添加模式  /true： 编辑模式
-      isProfessor:false,
-      dictList:[]
     }
   },
   
   methods: {
-    // 转换男女
-    parseSex(row){
-      if(!row.professorSex){
-        return ''
-      } 
-      for(let i = 0;i < this.dictList.length; i++){
-        if(this.dictList[i].dictCode == row.professorSex){
-          return this.dictList[i].dictName
-        }
-      }
-    },
-    // 点击学校，加载学院
-    handleChange(val){
-      console.log("===========点击学校，加载学院=================")
-      console.log(val)
-      if(val == ''){
-        return false
-      }
-      this.tableData= []
-      this.currentPage = 1
-      this.totalNumber = 0
-      this.currentNodeId = val
-      this.academyId = val.substring(1)
-      
-      for(let i = 0; i< this.schoolsList.length; i++){
-          if(this.schoolsList[i].id == this.academyId){
-            if(!this.schoolsList[i].children){
-              getGrouplist({id:this.academyId}).then(response => {
-                this.$set( this.schoolsList[i], 'children', [])
-                this.schoolsList[i].children = response.data
-              })
-              break
-            }
-          }
-        }
-    },
-    // 点击学院 加载人员
-    triggerReloadingTable(item){
-      this.currentNodeId = item.groupId
-      this.currentNode = item 
-      this.currentPage = 1
-      this.totalNumber = 0
-      this.refreshLoadingData()
-    },
     // 查询
     querySearch (){
       console.log("====================查询=====================")
       console.log(this.searchKeyWord)
-      this.refreshLoadingData()
+      this.currentPage = 1
+      this.loadingData()
     },
     // 改变每页显示多少条
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`)
       this.pageSize = val 
-      this.refreshLoadingData()
+      this.loadingData()
     },
     // 改变当前显示第几页
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`)
       console.log(`当前页: ${this.currentPage}`)
       this.currentPage = val
-      this.refreshLoadingData()
+      this.loadingData()
     },
-    refreshLoadingData(NodeId){
+    loadingData(NodeId){
       this.loading = true 
-      getProfessorlist({ groupId: this.currentNodeId, pageSize: this.pageSize, pageNow: this.currentPage,keyword:this.searchKeyWord}).then(responce =>{
+      getGrouplist({ 
+        pageSize: this.pageSize, 
+        pageNow: this.currentPage,
+        academyId:this.academyId,
+        keyword:this.searchKeyWord}).then(responce =>{
         this.tableData = responce.data
         this.totalNumber = responce.total
         this.loading = false
       })
      
     },
-    // 当机构下无部门可展示时，添加部门功能
-    addGroup(){
-      this.isProfessor = false
-      // 添加部门
-      this.currentNodeId= 0
-      this.edieMode = false
-      let formData = {}
-      let form = {}
-      formData =
-        [ 
-          {name:'部门名称',
-          prop:'groupName',
-          rules:{ required: true, message: '部门名称不能为空', trigger: 'blur'},
-          labelWidth:'180px',
-          isInput:true,
-          isTextarea:false,
-          },
-          {name:'部门描述',
-           prop:'grouDesc',
-           labelWidth:'180px',
-           isInput:false,
-           isTextarea:true,
-          },
-        ]
-      form = {
-        academyId:this.academyId,
+    // 添加部门
+    addDepartment(){
+      this.form = {
         groupName:'',
-        grouDesc:''
+        groupDesc:'',
+        academyId:'',
+        groupImg:'',
+        groupId:'',
+        id:''
       }
-      this.form = form
-      this.formData = formData
-      this.dialogTitle = '添加部门'
-      this.dialogFormVisible = true   
-    },
-    // 左侧添加按钮 添加机构/部门
-    addClick(){
-      this.isProfessor = false
-      console.log("左侧添加按钮 添加机构/部门")      
-      console.log(this.currentNodeId)
+      this.dialogTitle = '添加'
       this.edieMode = false
-      let formData = {}
-      let form = {}
-      if((this.currentNodeId+'').indexOf('s') != -1){
-        // 添加机构
-        formData =
-        [ 
-          {name:'机构名称',
-          prop:'academyName',
-          rules:{ required: true, message: '机构名称不能为空', trigger: 'blur'},
-          labelWidth:'180px',
-          isInput:true,
-          isTextarea:false,
-          },
-          {name:'机构描述',
-           prop:'academyDesc',
-           labelWidth:'180px',
-           isInput:false,
-           isTextarea:true,
-          },
-          {name:'访问路径',
-           prop:'academyURL',
-           labelWidth:'180px',
-           isInput:true,
-           isTextarea:false,
-          },
-        ]
-        form = {
-          academyName:'',
-          academyDesc:"",
-          academyURL:''
-        }
-        
-        this.dialogTitle = '添加机构'
-      }else{
-        // 添加部门
-        formData =
-        [ 
-          {name:'部门名称',
-          prop:'groupName',
-          rules:{ required: true, message: '部门名称不能为空', trigger: 'blur'},
-          labelWidth:'180px',
-          isInput:true,
-          isTextarea:false,
-          },
-          {name:'部门描述',
-           prop:'grouDesc',
-           labelWidth:'180px',
-           isInput:false,
-           isTextarea:true,
-          },
-        ]
-        form = {
-          academyId:this.academyId,
-          groupName:'',
-          grouDesc:''
-        }
-        this.dialogTitle = '添加部门'  
-        
-      }
-      this.form = form
-      this.formData = formData
-      this.dialogFormVisible = true     
-    },
-    // 左侧编辑按钮  编辑机构、部门
-    editClick(){
-      this.isProfessor = false
-      console.log("左侧编辑按钮  编辑机构、部门")      
-      console.log(this.currentNodeId)
-      if(this.currentNodeId == "s"){
-        this.$message({
-          message: '请选择机构',
-          type: 'info'
-        })      
-        return 
-      }
-      this.edieMode = true
-      let formData = {} 
-      let form = {}
-      if((this.currentNodeId+'').indexOf('s') != -1){
-        // 添加机构
-        formData =
-        [ 
-          {name:'机构名称',
-          prop:'academyName',
-          rules:{ required: true, message: '机构名称不能为空', trigger: 'blur'},
-          labelWidth:'180px',
-          isInput:true,
-          isTextarea:false,
-          },
-          {name:'机构描述',
-           prop:'academyDesc',
-           labelWidth:'180px',
-           isInput:false,
-           isTextarea:true,
-          },
-          {name:'访问路径',
-           prop:'academyURL',
-           labelWidth:'180px',
-           isInput:true,
-           isTextarea:false,
-          },
-        ]
-        for(let i = 0; i<this.schoolsList.length; i++){
-          if(this.schoolsList[i].id == this.academyId){
-            form = this.schoolsList[i]
-          }
-        }
-        this.dialogTitle = '编辑机构'
-      }else{
-         //编辑部门
-        formData =
-        [ 
-          {name:'部门名称',
-          prop:'groupName',
-          rules:{ required: true, message: '部门名称不能为空', trigger: 'blur'},
-          labelWidth:'180px',
-          isInput:true,
-          isTextarea:false,
-          },
-          {name:'部门描述',
-           prop:'groupDesc',
-           labelWidth:'180px',
-           isInput:false,
-           isTextarea:true,
-          },
-        ]
-        console.log(this.currentNode)
-        form = this.currentNode
-        form.id = this.currentNodeId
-        this.dialogTitle = '编辑部门' 
-        
-      }
-      this.form = form
-      this.formData = formData
-      this.dialogFormVisible = true 
-
-    },
-    //提交表单
-    submitForm(formName){
-      console.log(this.form)
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          if(this.edieMode){
-            // 编辑模式
-            if(this.isProfessor){
-              // 人员编辑
-              updateProfessor(this.form).then(response => {
-                // 初始化页面
-                this.currentPage = 1
-                this.totalNumber = 0
-                this.refreshLoadingData()
-                this.dialogFormVisible = false
-                this.$message({
-                  message: '保存人员成功！',
-                  type: 'success'
-                })       
-              })
-              return 
-            }
-            console.log(this.currentNodeId)
-            if((this.currentNodeId+'').indexOf('s') != -1){
-              // 编辑机构
-              updateAcademy(this.form).then(response => {
-                // 初始化页面
-                this.init()
-                this.dialogFormVisible = false
-                this.$message({
-                  message: '保存机构成功！',
-                  type: 'success'
-                })       
-              })
-            }else{
-             
-               // 编辑部门
-              updateGroup(this.form).then(response => {
-                // 初始化页面
-                this.init()
-                this.dialogFormVisible = false
-                this.$message({
-                  message: '保存部门成功！',
-                  type: 'success'
-                })       
-              })
-            }
-           
-          }else{
-            // 添加模式
-            if(this.isProfessor){
-              // 人员添加
-              addProfessor(this.form).then(response => {
-                // 初始化页面
-                this.currentPage = 1
-                this.totalNumber = 0
-                this.refreshLoadingData()
-                this.dialogFormVisible = false
-                this.$message({
-                  message: '保存人员成功！',
-                  type: 'success'
-                })       
-              })
-              return 
-            }
-            console.log(this.currentNodeId)
-            if((this.currentNodeId+'').indexOf('s') != -1){
-              // 添加机构
-              addAcademy(this.form).then(response => {
-                // 初始化页面
-                this.init()
-                this.dialogFormVisible = false
-                this.$message({
-                  message: '保存机构成功！',
-                  type: 'success'
-                })       
-              })
-              
-            }else{
-              // 添加部门
-              addGroup(this.form).then(response => {
-                // 初始化页面
-                this.init()
-                this.dialogFormVisible = false
-                this.$message({
-                  message: '保存部门成功！',
-                  type: 'success'
-                })       
-              })
-            }
-          }
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
-      })
-    },
-    // 左侧删除按钮  删除机构、部门
-    deleteClick(){
-      if(this.currentNodeId == "s"){
-        this.$message({
-          message: '请选择机构',
-          type: 'info'
-        })    
-         return   
-      }
-      this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-          if((this.currentNodeId+'').indexOf('s') != -1 ){
-            // 删除机构
-            delAcademy({id:this.academyId}).then(response => {
-              this.init()
-              this.$message({
-                type: 'success',
-                message: '删除成功!'
-              })
-            })
-          }else {
-            // 删除部门
-             delGroup({id:this.currentNodeId}).then(response => {
-              this.init()
-              this.$message({
-                type: 'success',
-                message: '删除成功!'
-              })
-            })
-          }
-        // 删除组织
-
-        
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        })          
-      })
-    },
-    // 右侧点击添加人员按钮 /点击编辑人员按钮
-    addOrUpdateProfessor(type,row){
-      if((this.currentNodeId+'').indexOf('s') != -1){
-        return false
-      }
-      this.isProfessor = true
-      let formData =  [ 
-          {name: '人员名称',
-          prop: 'professorName',
-          rules:{ required: true, message: '人员名称不能为空', trigger: 'blur'},
-          labelWidth:'180px',
-          isInput:true,
-          isTextarea:false,
-          },
-          {name: '研究主要方向',
-           prop: 'professorDesc',
-           labelWidth: '180px',
-           isInput: false,
-           isTextarea: true,
-          },
-          {name: '性别',
-           prop: 'professorSex',
-           labelWidth: '180px',
-           isInput: false,
-           isTextarea: false,
-           isSelect: true,
-           parentCode:'009'
-          },
-          {name: '职称',
-           prop: 'professorTitle',
-           labelWidth: '180px',
-           isInput: true,
-           isTextarea: false,
-          },
-        ]
-      this.formData = formData
-      if(type == 0){
-        // 添加人员
-        this.form = {
-          professorName:'',
-          professorDesc:'',
-          professorSex:'',
-          professorTitle:'',
-          academyId:this.academyId,
-          groupId:this.currentNodeId
-        }
-
-        this.dialogTitle = '添加人员'
-        this.edieMode = false
-
-      }else if(type == 1){
-        // 编辑人员
-        this.form = row
-        this.dialogTitle = '编辑人员'
-        this.edieMode = true
-      }
-      
       this.dialogFormVisible = true
-     
     },
-    // 删除人员
-    deleteProfessor(row){
-       
+    // 编辑部门
+    editDepartment (row) {
+      this.form = row
+      this.dialogTitle = '编辑'
+      this.edieMode = true
+       this.dialogFormVisible = true
+    },
+    // 删除部门
+    deleteDepartment(row){   
       this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        // 删除人员
-        delProfessor({id:row.id}).then(response => {
-          this.refreshLoadingData()
+        // 删除
+        delGroup({id:row.id}).then(response => {
+          this.loadingData()
           this.$message({
             type: 'success',
             message: '删除成功!'
@@ -592,32 +221,85 @@ export default {
           type: 'info',
           message: '已取消删除'
         })          
+      })     
+    },
+    // 启用/停用部门
+    stopDepartment(row){   
+      let message = '此操作将停用该数据, 是否继续?'
+      if(row.groupState != '010001'){//当前为启用状态
+        message = '此操作将启用该数据, 是否继续?'
+        row.groupState = '010001'
+      }else{
+        row.groupState = '010002'
+      }
+      this.$confirm(message, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 启用/停用
+        updateGroup(row).then(response => {
+          if(this.tableData.length == 1){
+            this.currentPage = this.currentPage -1
+          }
+          this.loadingData()
+          this.$message({
+            type: 'success',
+            message: '操作成功!'
+          })
+        })    
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消操作'
+        })          
       })
     },
-    init(){
-      this.tableData = []
-      getSchoolsList().then(response => {
-        this.schoolsList = response.data
-        if(response.data[0] && response.data != null){
-          if(this.academyId != ''){
-             this.activeNames = 's'+this.academyId
-            this.handleChange('s'+this.academyId)
+    //提交表单
+    submitForm(formName){
+      console.log(this.form)
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          if(this.edieMode){  
+            // 编辑
+            updateGroup(this.form).then(response => {
+              // 初始化页面
+              this.loadingData()
+              this.dialogFormVisible = false
+              this.$message({
+                message: '编辑成功！',
+                type: 'success'
+              })       
+            })    
           }else{
-            this.activeNames = 's'+response.data[0].id
-            this.handleChange('s'+response.data[0].id)
+            // 添加
+            addGroup(this.form).then(response => {
+              // 初始化页面
+              this.loadingData()
+              this.dialogFormVisible = false
+              this.$message({
+                message: '保存成功！',
+                type: 'success'
+              })       
+            })  
           }
-        }else{
-          this.currentNodeId = "s"
-        }        
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
       })
     }
   },
   mounted () {
-    this.init()
-    // 获取字典表所有数据
-    dictList().then(response => {
-        this.dictList = response.data
-    })
+    setTimeout(()=>{
+      this.loadingData()
+      getFileList({ fileType:"013002" }).then(response =>{
+        this.imgFileList = response.data
+      })
+      getSchoolsList().then(responce =>{
+        this.academyList = responce.data
+      })
+    },10)  
   }
 }
 </script>
@@ -645,40 +327,4 @@ export default {
       width: 77.5%;
     }
   }
-  .collapseDiv{
-    overflow-y: auto;
-    overflow-x: hidden;
-    max-height: 450px;
-    
-    ul.ul-item{
-      list-style: none;
-      padding: 0px;
-      li{
-        padding: 10px 5px;
-        margin-left: 20px;
-        border-left: 3px solid #fff;
-        &.active, &:hover{
-          border-left: 3px solid #409eff;
-          background-color: #409eff3b;
-        }
-        &:not(:last-child){
-          border-bottom: 1px solid #e3dfdf;
-        }
-      }
-
-    }
-    .el-collapse-item{
-      &.active{
-        .el-collapse-item__header{
-          background-color: #409eff;
-          color: #fff;
-        }
-      }
-      &:hover{
-        background-color: #409eff3b;
-      }
-      
-    }
-  }
-  
 </style>

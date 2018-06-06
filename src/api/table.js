@@ -8,6 +8,14 @@ export function getList(params) {
   })
 }
 
+export function getTreeList(params) {
+  return request({
+    url: '/classify/typeTreeList',
+    method: 'get',
+    params
+  })
+}
+
 export function addRowData(params) {
   return request({
     url: '/classify/typeAdd',

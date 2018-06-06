@@ -20,7 +20,7 @@ export function academyGroupList(params) {
 export function academyProfessorList(params) {
     return request({
       url: '/academy/professorlist',
-      method: 'get',
+      method: 'post',
       params
     })
 }

@@ -12,7 +12,7 @@
 import { mapGetters } from 'vuex'
 import ScrollBar from '@/components/ScrollBar'
 import vueZtree from '@/components/Ztree/vue-ztree.vue'
-import { getList as getServiceList} from '@/api/table'
+import { getTreeList as getServiceList} from '@/api/table'
 export default {
   components: { vueZtree, ScrollBar },
   computed: {
@@ -46,18 +46,20 @@ export default {
           // 跳转到服务页面
           this.$store.dispatch('SetServiceName',node.name)
           this.$store.dispatch('SetServiceId',node.id)
-          this.$router.push({path:"/service/serviceManager/"+node.id})
+          this.$router.replace({path:"/service/serviceManager/"+node.id})
           return
         }else{
-          this.$router.push({name:node.id})
+          
+          this.$router.replace({name:node.id})
         }
       }else{
         if(node.type == "service"){
           this.$store.dispatch('SetServiceName',node.name)
           this.$store.dispatch('SetServiceId',node.id)
-          this.$router.push({path:"/service/serviceManager/"+node.id})
+          this.$router.replace({path:"/service/serviceManager/"+node.id})
         }
       }
+      // this.$router.go(0)
     },
     // 初始化数据
     init(){

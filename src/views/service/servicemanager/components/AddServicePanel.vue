@@ -63,7 +63,7 @@
             </el-form-item>
             <el-form-item label="课题组／研究方向：" class="width50" prop="groupId">
               <el-select v-model="serviceInfo.groupId" placeholder="请选择" @change="changeGroup">
-                <el-option v-for="item in academyGroupList" :label="item.groupName" :key="item.groupId" :value="item.groupId"></el-option>
+                <el-option v-for="item in academyGroupList" :label="item.groupName" :key="item.id" :value="item.id"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="所有者：" class="width50" prop="professorId">
@@ -316,7 +316,7 @@ export default {
         // 改变所属学校 级联更改所有者和课题组／研究方向
         changeAcademy(val){
            // 课题组／研究方向
-            academyGroupList({id:val}).then(response => {  
+            academyGroupList({academyId:val}).then(response => {  
                 this.serviceInfo.groupId = ''
                 this.serviceInfo.professorId = ''
                 this.academyProfessorList = []
@@ -326,7 +326,7 @@ export default {
         },
          // 改变课题组 级联更改所有者
         changeGroup(val){
-            console.log("改变课题组 级联更改所有者")
+            console.log("改变课题组 级联更改所有者" +val)
             // 所有者
             academyProfessorList({groupId:val}).then(response => {
                 this.serviceInfo.professorId = ''
@@ -392,10 +392,7 @@ export default {
         top: 0;
     }
 }
-.avatar{
-    display: block;
-    max-width: 230px;
-}
+
 .customModeTitle{
     color: #555050;
     position: relative;

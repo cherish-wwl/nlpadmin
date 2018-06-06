@@ -26,7 +26,7 @@
     <br />
     <el-table :data="tableData"  border style="width: 100%" v-loading="loading">
         <el-table-column type="index"  width="50"> </el-table-column>       
-        <el-table-column prop="fileDesc"  label="图片描述"  min-width="180"> </el-table-column>
+        <el-table-column prop="fileDesc"  label="图片名称"  min-width="180"> </el-table-column>
         <el-table-column prop="fileType"  label="图片类别"  min-width="180"> 
           <template slot-scope="scope">
             <span v-for="item in dictList"
@@ -35,7 +35,7 @@
               >{{item.dictName}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="fileUrl"  label="图片路径"  min-width="180"> 
+        <el-table-column prop="fileUrl"  label="图片"  min-width="180"> 
           <template slot-scope="scope">
             <img :src="scope.row.fileUrl"/>
           </template>
@@ -82,7 +82,7 @@
             <el-input v-model="form.fileUrl" prop="fileUrl" style="display:none;"></el-input>
           </el-upload>
         </el-form-item>
-        <el-form-item label="图片描述">
+        <el-form-item label="图片名称">
           <el-input v-model="form.fileDesc" prop="fileDesc" ></el-input>
         </el-form-item>
       </el-form>
@@ -211,11 +211,17 @@ export default {
     },
     editRowData(mode,row) {     
       console.log(row)
-      this.form.imageId = row.imageId
-      this.form.fileUrl = row.imageUrl
-      this.form.fileType = row.dictCode
-      this.form.fileDesc = row.imageName
-      this.imageUrl =row.imageUrl
+      this.form = {
+        imageId:'',
+        fileUrl:'',
+        fileType:"",
+        fileDesc:""
+      }
+      this.form = row
+      // this.form.fileUrl = row.imageUrl
+      // this.form.fileType = row.dictCode
+      // this.form.fileDesc = row.imageName
+      this.imageUrl = row.fileUrl
       this.mode = mode
       this.dialogFormVisible = true
     },
