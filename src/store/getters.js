@@ -8,6 +8,12 @@ const getters = {
   serviceName: state => state.service.serviceName,
   hasServerEntry: state => state.service.hasServerEntry,
   isEditMode: state => state.service.isEditMode,
-  dictList: state => state.app.dictList
+  dictList: state => state.app.dictList,
+  academyId: state => state.professor.academyId,
+  groupId: state => state.professor.groupId,
+  professorId: state => state.professor.professorId,
+  professorPageState: state => state.professor.professorPageState,
+  classType: state => state.professor.classType,
+  content: state => state.professor.content,
 }
 export default getters

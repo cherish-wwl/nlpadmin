@@ -111,6 +111,12 @@ export const constantRouterMap = [
         component: () => import('@/views/systemManager/professorManage/index'), 
       },
       {
+        path: 'professorInfoManage',
+        name: 'professorInfoManage',
+        meta: { title: '教授信息管理'},
+        component: () => import('@/views/systemManager/professorInfoManage/index'), 
+      },
+      {
         path:'serverManager',
         name: 'serverManager',
         meta: { title: '服务器管理'},

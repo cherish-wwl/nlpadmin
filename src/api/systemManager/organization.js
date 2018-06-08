@@ -109,6 +109,43 @@ export function delProfessor(params) {
   })
 }
 
+// 获取教授相关信息 /academy/getProfessorRelateList
+export function getProfessorRelateList(params) {
+  return request({
+    url: '/academy/getProfessorRelateList',
+    method: 'post',
+    params
+  })
+}
+
+// 新增教授相关信息/academy/addProfessorRelate
+export function addProfessorRelate(params) {
+  return request({
+    url: '/academy/addProfessorRelate',
+    method: 'post',
+    data:params
+  })
+}
+
+
+// 编辑教授相关信息 /academy/updateProfessorRelate
+export function updateProfessorRelate(params) {
+  return request({
+    url: '/academy/updateProfessorRelate',
+    method: 'post',
+    data:params
+  })
+}
+
+
+// 删除教授相关信息 /academy/delProfessorRelate
+export function delProfessorRelate(params) {
+  return request({
+    url: '/academy/delProfessorRelate',
+    method: 'post',
+    params
+  })
+}
 
 
 
