@@ -6,6 +6,15 @@
     <br />
     <el-tabs v-model="activeName2" type="card">
         <el-tab-pane label="管理平台" name="first">
+          <span>2018年6月14</span>
+          <br />
+          <ul>
+            <li>1.服务管理页面：
+                <br />1)添加字段是否免费（ischarge）
+                <br />2)将所属类型变为下拉选
+            </li>
+            <li>2.部门管理页面：添加详情，和简介字段 添加富文本编辑器</li>
+          </ul>
           <span>2018年6月7号</span>
           <br />
           <ul>
@@ -85,6 +94,14 @@
           
         </el-tab-pane>
         <el-tab-pane label="展示平台" name="second">
+          <span>2018年6月14</span>
+          <br />
+          <ul>
+            <li>1.动态展示专家页面</li>
+            <li>2.动态展示研究院页面</li>
+            <li>3.静态页面：可登录（随便填写用户名密码）</li>
+            <li>4.静态页面：登录后，可进入管控台系统</li>
+          </ul>
           <span>2018年6月7号</span>
           <br />
           <ul>
