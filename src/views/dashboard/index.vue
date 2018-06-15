@@ -10,6 +10,7 @@
           <pre>
             1.服务管理页面：将所属类别不可修改变为可修改，并改为下拉选
               修改接口：service/typeList：添加入参：isSelection
+            2.服务分类管理页面：修改rec_num为下拉选
           </pre>
           <span>2018年6月14</span>
           <br />
