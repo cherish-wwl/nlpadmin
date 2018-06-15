@@ -21,13 +21,22 @@
         <br />
         <br />
         <el-table :data="tableData"  border style="width: 100%" v-loading="loading">
-          <el-table-column prop="name" label="name"> </el-table-column>
-          <el-table-column prop="descr" label="descr"> </el-table-column>
-          <el-table-column prop="icon" label="icon"> </el-table-column>
+          <el-table-column prop="name" label="名称"> </el-table-column>
+          <el-table-column prop="descr" label="描述"> </el-table-column>
+          <el-table-column prop="icon" label="图标"> </el-table-column>
           <!-- <el-table-column prop="leaf" label="leaf"> </el-table-column> -->
-          <el-table-column prop="p_id" label="p_id"> </el-table-column>
-          <el-table-column prop="rec_num" label="rec_num"> </el-table-column>
-          <el-table-column prop="ser_type" label="ser_type"> </el-table-column>
+          <!-- <el-table-column prop="p_id" label="p_id"> </el-table-column> -->
+          <el-table-column prop="rec_num" label="推荐等级">
+            <template slot-scope="scope">
+              <span 
+                v-for="item in recommendList" 
+                :key="item.id" 
+                v-if="scope.row.rec_num == item.id">
+                {{ item.name }}
+              </span>
+            </template>
+          </el-table-column>
+          <!-- <el-table-column prop="ser_type" label="ser_type"> </el-table-column> -->
           <el-table-column label="操作" width="90">
             <template slot-scope="scope">
               <el-button @click="deleteRowData(scope.row)" type="text" size="small">删除</el-button>
@@ -50,27 +59,30 @@
     </el-col>
     <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible">
       <el-form :model="form">
-        <el-form-item label="姓名" :label-width="formLabelWidth">
+        <el-form-item label="名称：" :label-width="formLabelWidth">
           <el-input v-model="form.name" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="说明" :label-width="formLabelWidth">
+        <el-form-item label="描述：" :label-width="formLabelWidth">
           <el-input v-model="form.descr" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="图标" :label-width="formLabelWidth">
+        <el-form-item label="图标：" :label-width="formLabelWidth">
           <el-input v-model="form.icon" auto-complete="off"></el-input>
         </el-form-item>
         <!-- <el-form-item label="leaf" :label-width="formLabelWidth"> -->
           <!-- <el-input v-model="form.leaf" auto-complete="off"></el-input> -->
         <!-- </el-form-item> -->
-        <el-form-item label="父级id" :label-width="formLabelWidth">
+        <!-- <el-form-item label="父级id：" :label-width="formLabelWidth">
           <el-input v-model="form.p_id" auto-complete="off" disabled></el-input>
+        </el-form-item> -->
+        <el-form-item label="推荐等级：" :label-width="formLabelWidth">
+          <el-select v-model="form.rec_num" placeholder="请选择">
+              <el-option v-for="item in recommendList" 
+              :key="item.id" :label="item.name" :value="item.id"></el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item label="是否推荐" :label-width="formLabelWidth">
-          <el-input v-model="form.rec_num" auto-complete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="分类类型" :label-width="formLabelWidth">
+        <!-- <el-form-item label="分类类型：" :label-width="formLabelWidth">
           <el-input v-model="form.ser_type" auto-complete="off"></el-input>
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -82,10 +94,36 @@
 
 <script>
 import { getList, addRowData, editRowData, delRowData } from '@/api/table'
-
 export default {
   data() {
     return {
+      recommendList:[
+        {
+          id:0,
+          name:'不推荐'
+        },
+        {
+          id:1,
+          name:'优先级1'
+        },
+        {
+          id:2,
+          name:'优先级2'
+        },
+        {
+          id:3,
+          name:'优先级3'
+        },
+        {
+          id:4,
+          name:'优先级4'
+        },
+        {
+          id:5,
+          name:'最高级'
+        }
+
+      ],
       dataMode:'add',
       form:{
         name:'',
@@ -102,16 +140,6 @@ export default {
       pageSize: 5,
       tableData: [],
       dialogFormVisible: false,
-      form: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
-      },
       formLabelWidth: '120px',
       props: {
           label: 'name',

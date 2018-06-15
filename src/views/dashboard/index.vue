@@ -6,6 +6,11 @@
     <br />
     <el-tabs v-model="activeName2" type="card">
         <el-tab-pane label="管理平台" name="first">
+          <span>2018年6月15</span>
+          <pre>
+            1.服务管理页面：将所属类别不可修改变为可修改，并改为下拉选
+              修改接口：service/typeList：添加入参：isSelection
+          </pre>
           <span>2018年6月14</span>
           <br />
           <ul>
@@ -94,6 +99,16 @@
           
         </el-tab-pane>
         <el-tab-pane label="展示平台" name="second">
+          <span>2018年6月15号</span>
+          <br />
+          <pre>
+            1.新增调用获取验证码接口：/execute/getCertificate
+            2.修改原来的执行调用服务接口：/execute/service
+                入参变化：原来的url字段去掉，新增服务id：serviceId，验证码：certificate
+            3、接口：/service/searchServiceByCondition出参变化：当forwardType为014001时，url为“”
+            4、接口：/service/details/list 出参变化：服务id变为serviceId，调用路径url为空
+            5、智齿客服 的人工客服接入
+          </pre>
           <span>2018年6月14</span>
           <br />
           <ul>
@@ -101,6 +116,8 @@
             <li>2.动态展示研究院页面</li>
             <li>3.静态页面：可登录（随便填写用户名密码）</li>
             <li>4.静态页面：登录后，可进入管控台系统</li>
+            <li>5.添加在线客服（智齿客服）</li>
+            <li>6.查看文档页面：动态加载　＋ｊｓｏｎ　格式展示</li>
           </ul>
           <span>2018年6月7号</span>
           <br />

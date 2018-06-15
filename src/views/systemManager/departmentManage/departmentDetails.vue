@@ -1,9 +1,10 @@
 <template>
   <el-row>
       <el-col>
-        <el-button size="mini" @click="returnBack" > <span > >返回</span></el-button>
+        <el-button size="mini" @click.native="returnBack" > >返回</el-button>
         <span> {{ edieMode == 1? "添加":"编辑" }}</span>
       </el-col>
+      <br />
       <el-row class="text_right">
         <el-button type="primary" @click="saveInfo">保 存</el-button>
       </el-row>
@@ -110,6 +111,7 @@ export default {
      
     },
     returnBack(){
+      console.log("返回上一级")
       this.$emit('showList')
     },
     onContentChange (val) {

@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import { getList, getServiceListById } from '@/api/table'
+import { getServiceListById } from '@/api/table'
 import { delService } from '@/api/service'
 import { AddServicePanel, AddServerInfo} from '@/views/service/servicemanager/components'
 import { mapGetters } from 'vuex'

@@ -12,7 +12,11 @@
               <el-input placeholder="请输入服务名称" v-model="serviceInfo.serviceName" ></el-input>    
             </el-form-item>
             <el-form-item label="所属类型：" class="width50" prop="className">
-              <el-input v-model="serviceInfo.className" disabled></el-input>
+                <el-select v-model="serviceInfo.class_id" placeholder="请选择">
+                    <el-option v-for="item in classList"
+                    :key="item.id" :label="item.name" :value="item.id">
+                    </el-option>
+                </el-select>
             </el-form-item>
             <el-form-item label="服务描述：" class="width100" prop="serviceDescr">
               <el-input v-model="serviceInfo.serviceDescr" :autosize="{ minRows: 2, maxRows: 6}" type="textarea" placeholder="请输入服务描述"></el-input>
@@ -122,6 +126,7 @@
 <script>
 import { academyList, academyGroupList, academyProfessorList, addServiceInfo ,getServiceInfo, updataServiceInfo} from '@/api/service.js'
 import { getFileList } from '@/api/uploadFile.js'
+import { getList } from '@/api/table'
 import { mapGetters } from 'vuex'
 export default {
     props:[
@@ -232,7 +237,8 @@ export default {
                 professorId:[
                     { required: true, message: '请输入所有者', trigger: 'change' }
                 ]
-            }
+            },
+            classList:null
         }
     },
     methods: {
@@ -340,13 +346,19 @@ export default {
         academyList().then(response => {
             this.academyList = response.data
         })
-        // 获取图片
+        // 获取服务图片
         getFileList({ fileType:"013005" }).then(response =>{
             this.imgFileList = response.data
         })
+        // 获取自定义模式图片
         getFileList({ fileType:"013006" }).then(response =>{
             this.imgFileList2 = response.data
         })
+        // 获取所属类型下拉选
+        getList({isSelection:'yes'}).then(response =>{
+            this.classList = response.data
+        })
+        
         console.log("为编辑状态  获取服务信息详情")
         // console.log(this.type)
         if(this.type == 1){
