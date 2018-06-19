@@ -51,3 +51,11 @@
   height: 400px;
   overflow-y: auto;
 }
+
+.el-header{
+  z-index: 1005;
+}
+
+.el-main{
+  position: relative;
+}

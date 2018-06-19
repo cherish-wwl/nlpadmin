@@ -1,7 +1,12 @@
 #app {
   // 主体区域
   .main-container {
-    min-height: 100%;
+    position: absolute;
+    top: 60px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: auto;
     transition: margin-left 0.28s;
   } // 侧边栏
   .sidebar-container {

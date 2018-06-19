@@ -13,6 +13,7 @@ body {
 
 html {
   box-sizing: border-box;
+  height: 100%;
 }
 
 *,
@@ -67,8 +68,8 @@ a:hover {
     width: 78%;
   }
 }
-html{
-  overflow: hidden;
+body,#app{
+  height: 100%;
 }
 .avatar{
   display: block;

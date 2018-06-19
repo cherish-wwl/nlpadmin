@@ -8,8 +8,8 @@
         <sidebar></sidebar>
       </el-aside>
       <el-main>
+        <navbar></navbar>
         <div class="main-container">
-          <navbar></navbar>
           <app-main :class="{hideleft:!sidebar.opened}"></app-main>
         </div>
       </el-main>
