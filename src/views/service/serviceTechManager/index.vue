@@ -15,7 +15,7 @@
     </el-col>
     <el-col :span="19">
       <div class="grid-content">
-       
+       <docment-temp></docment-temp>
       </div>
     </el-col>
     <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible">
@@ -41,7 +41,11 @@
 
 <script>
 import { getList } from '@/api/table'
+import { docmentTemp } from "./components"
 export default {
+  components:{
+    docmentTemp
+  },
   data() {
     return {
       dataMode:'add',
@@ -76,10 +80,17 @@ export default {
     handleClick(row) {
       console.log(row)
     },
+    loadingDocument(){
+      // 加载文档
+
+    },
     handleNodeClick(data,resolve) {
       console.log(data)
       this.nodeInfo = data 
       this.currentNodeId = data.id
+      if(this.currentNodeId.length == 9){
+        this.loadingDocument()
+      }
     },
     loadNode(node, resolve) {
       let sendData
