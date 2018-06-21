@@ -6,6 +6,10 @@
     <br />
     <el-tabs v-model="activeName2" type="card">
         <el-tab-pane label="管理平台" name="first">
+          <span>2018年6月21号</span>
+          <pre>
+            1.
+          </pre>
           <span>2018年6月15</span>
           <pre>
             1.服务管理页面：将所属类别不可修改变为可修改，并改为下拉选
@@ -100,6 +104,18 @@
           
         </el-tab-pane>
         <el-tab-pane label="展示平台" name="second">
+          <span>2018年6月21号</span>
+          <pre>
+            1.客服服务联调获取token值，修改为默认人工客服
+            2.添加达观数据页面
+            3.将达观数据页面和小牛翻译 页面展示数据 提取  修改为可配置  
+              配置文件路径为"static/solution/datagrand.json","static/solution/xiaoniu.json"
+            4.修改  首页-基础服务  
+              点击分类 跳转到  服务列表页面 
+              点击具体服务  跳转到  服务详情页面
+              （修改接口：/service/type/recList2；返回结果children：添加 forwardType和url字段）
+            5.修改图片加载路径
+          </pre>
           <span>2018年6月15号</span>
           <br />
           <pre>

@@ -24,14 +24,16 @@
           <el-table-column prop="name" label="名称"> </el-table-column>
           <el-table-column prop="descr" label="描述"> </el-table-column>
           <el-table-column prop="icon" label="图标"> </el-table-column>
+          <el-table-column prop="img" label="banner图"> </el-table-column>
+          <el-table-column prop="rec_num" label="是否推荐"> </el-table-column>
           <!-- <el-table-column prop="leaf" label="leaf"> </el-table-column> -->
           <!-- <el-table-column prop="p_id" label="p_id"> </el-table-column> -->
-          <el-table-column prop="rec_num" label="推荐等级">
+          <el-table-column prop="leaf" label="推荐等级">
             <template slot-scope="scope">
               <span 
                 v-for="item in recommendList" 
                 :key="item.id" 
-                v-if="scope.row.rec_num == item.id">
+                v-if="scope.row.leaf == item.id">
                 {{ item.name }}
               </span>
             </template>
@@ -68,6 +70,23 @@
         <el-form-item label="图标：" :label-width="formLabelWidth">
           <el-input v-model="form.icon" auto-complete="off"></el-input>
         </el-form-item>
+        <el-form-item label="banner图：" :label-width="formLabelWidth">
+         <el-select v-model="form.img" placeholder="请选择">
+                    <el-option v-for="form in imgFileList"
+                    :key="form.imageId" :label="form.fileDesc" :value="form.imageId"></el-option>
+                </el-select>
+                <img        
+                    v-for="form in imgFileList" 
+                    :key="form.imageId" 
+                    v-if="form.fileType && form.fileType == form.imageId"
+                    :src="form.fileUrl" class="avatar">
+        </el-form-item>
+        <el-form-item label="是否推荐：" :label-width="formLabelWidth">
+          <el-select v-model="form.rec_num" placeholder="请选择">
+            <el-option v-for="form in dictList" v-if="form.parentCode =='016'" 
+            :key="form.dictCode" :label="form.dictName" :value="form.dictCode"></el-option>
+          </el-select>
+        </el-form-item>
         <!-- <el-form-item label="leaf" :label-width="formLabelWidth"> -->
           <!-- <el-input v-model="form.leaf" auto-complete="off"></el-input> -->
         <!-- </el-form-item> -->
@@ -75,7 +94,7 @@
           <el-input v-model="form.p_id" auto-complete="off" disabled></el-input>
         </el-form-item> -->
         <el-form-item label="推荐等级：" :label-width="formLabelWidth">
-          <el-select v-model="form.rec_num" placeholder="请选择">
+          <el-select v-model="form.leaf" placeholder="请选择">
               <el-option v-for="item in recommendList" 
               :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
@@ -94,13 +113,21 @@
 
 <script>
 import { getList, addRowData, editRowData, delRowData } from '@/api/table'
+import { getFileList } from '@/api/uploadFile.js'
+import { mapGetters } from 'vuex'
 export default {
+  computed:{
+    ...mapGetters([
+      'dictList',
+      'fileType'
+    ])
+  },
   data() {
     return {
       recommendList:[
         {
           id:0,
-          name:'不推荐'
+          name:'优先级0'
         },
         {
           id:1,
@@ -129,10 +156,12 @@ export default {
         name:'',
         descr:'',
         icon:'',
+        img:'',
         // leaf:'',
         p_id:'',
         rec_num:'',
-        ser_type:''
+        ser_type:'',
+        leaf:''
       },
       loading: false,
       currentPage: 1,
@@ -149,7 +178,8 @@ export default {
       treeData: [],
       dialogTitle:'',
       currentNodeId: 0,
-      nodeInfo: null
+      nodeInfo: null,
+      imgFileList:[]
     }
   },
   methods: {
@@ -310,13 +340,16 @@ export default {
     }
   },
   mounted () {
-    
+   
     // 加载表格
     this.loading = true
     getList({ id:0, pageSize: this.pageSize, pageNow: this.currentPage}).then(response => {
         this.loading = false
         this.tableData = response.data
         this.totalNumber = response.total
+    })
+     getFileList({ fileType:"013004" }).then(response =>{
+        this.imgFileList = response.data
     })
   },updated () {
     // console.log("updated")
