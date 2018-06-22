@@ -129,12 +129,6 @@ export const constantRouterMap = [
         meta: { title: '服务分类管理' }
       }, 
       {
-        path: 'serviceTechManager',
-        name: 'serviceTechManager',
-        component: () => import('@/views/service/serviceTechManager/index'),
-        meta: { title: '服务技术文档管理' }
-      },
-      {
         path: 'uploadFileManager',
         name: 'uploadFileManager',
         component: () => import('@/views/systemManager/uploadFileManage/index'),

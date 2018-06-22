@@ -1,7 +1,16 @@
 <template>
   <el-row :gutter="20">
     <el-col :span="24" class="right-panel">
-      <div class="grid-content"  v-if="!addPanel">
+      <add-service-panel 
+      :type="type" 
+      :current-node="nodeInfo" 
+      @returnBack="returnBack" 
+      @reloadingTable="reloadingTable" 
+      v-if="addPanel"
+      @dialogMethod="dialogMethod">
+      </add-service-panel>
+
+      <div class="grid-content" v-else>
         <el-input
           placeholder="请输入关键字"
           suffix-icon="el-icon-search"
@@ -58,14 +67,7 @@
           </el-pagination>
         </div>
       </div>
-      <add-service-panel 
-      :type="type" 
-      :current-node="nodeInfo" 
-      @returnBack="returnBack" 
-      @reloadingTable="reloadingTable" 
-      v-if="addPanel"
-      @dialogMethod="dialogMethod">
-      </add-service-panel>
+      
     </el-col>
     <!-- 添加服务器信息弹出框 -->
     <add-server-info :dialog-form-visible="dialogFormVisible" @returnBack="returnBack"  @dialogMethod="dialogMethod"></add-server-info>
@@ -113,7 +115,7 @@ export default {
   },
   components:{
     AddServicePanel,
-    AddServerInfo
+    AddServerInfo,
   },
   methods: {
     // 时间戳转换时间
@@ -218,15 +220,15 @@ export default {
       
     },
     // 返回服务列表
-    returnBack(){
-      this.addPanel = false 
+    returnBack(val){
+      this.addPanel = false      
     },
     // 添加/编辑接入信息= 返回方法
     dialogMethod(val){
       console.log("===========服务器编辑信息 返回方法===============")
       console.log(val)
       this.dialogFormVisible = val
-    }
+    },   
     
   },
   watch:{
@@ -267,7 +269,7 @@ export default {
   }
   .el-input,.el-select {
    
-    width: 230px;
+    max-width: 230px;
   }
 
   .width50{

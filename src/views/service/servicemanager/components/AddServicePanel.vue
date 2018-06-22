@@ -2,133 +2,154 @@
    <div class="grid-content addServicePanel">
         <div>
           <a class="rebackLink" v-on:click="returnBack">服务列表</a> > 
-          <a v-if="type == 0"> 添加服务</a>
-          <a v-else >编辑服务</a>
+          <a v-if="type == 0" @click="isShowDocument = false"> 添加服务</a>
+          <a v-else  @click="isShowDocument = false">编辑服务</a> 
+          <span v-if="isShowDocument"> > </span>
+          <a v-if="isShowDocument">技术文档</a>
         </div>
         <br />
-        <el-row>
-          <el-form label-position="right" :inline="true" label-width="140px" ref="ruleForm" :model="serviceInfo" :rules="rules">
-            <el-form-item label="服务名称：" class="width50" prop="serviceName">
-              <el-input placeholder="请输入服务名称" v-model="serviceInfo.serviceName" ></el-input>    
-            </el-form-item>
-            <el-form-item label="所属类型：" class="width50" prop="className">
-                <el-select v-model="serviceInfo.class_id" placeholder="请选择">
-                    <el-option v-for="item in classList"
-                    :key="item.id" :label="item.name" :value="item.id">
-                    </el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item label="服务描述：" class="width100" prop="serviceDescr">
-              <el-input v-model="serviceInfo.serviceDescr" :autosize="{ minRows: 2, maxRows: 6}" type="textarea" placeholder="请输入服务描述"></el-input>
-            </el-form-item>
-            <el-form-item label="输入参数：" class="width100" prop="in_arg">
-              <el-input v-model="serviceInfo.in_arg" :autosize="{ minRows: 2, maxRows: 6}" type="textarea" placeholder="请输入输入参数"></el-input>
-            </el-form-item>
-            <el-form-item label="服务调用方式：" class="width50" prop="methodType">
-                <el-select v-model="serviceInfo.methodType" placeholder="请选择">
-                    <el-option v-for="item in dictList" v-if="item.parentCode =='001'" 
-                    :key="item.dictCode" :label="item.dictName" :value="item.dictCode"></el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item label="是否免费：" class="width50" prop="methodType">
-                <el-select v-model="serviceInfo.isCharge" placeholder="请选择">
-                    <el-option v-for="item in dictList" v-if="item.parentCode =='012'" 
-                    :key="item.dictCode" :label="item.dictName" :value="item.dictCode"></el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item label="服务调用路径：" class="width50" prop="url">
-              <el-input v-model="serviceInfo.url" placeholder="请输入服务调用路径" ></el-input>
-            </el-form-item>
-            
-            <el-form-item label="banner路径：" class="width50">
-              <el-input v-model="serviceInfo.banner" placeholder="请输入banner路径" ></el-input>
-            </el-form-item>
-            <el-form-item label="图片：" class="width50">
-                <el-select v-model="serviceInfo.serviceIcon" placeholder="请选择">
-                    <el-option v-for="item in imgFileList"
-                    :key="item.imageId" :label="item.fileDesc" :value="item.imageId"></el-option>
-                </el-select>
-                <img        
-                    v-for="item in imgFileList" 
-                    :key="item.imageId" 
-                    v-if="serviceInfo.serviceIcon && serviceInfo.serviceIcon == item.imageId"
-                    :src="item.fileUrl" class="avatar">
-            </el-form-item>
-            <el-form-item label="服务状态：" class="width50" prop="serviceState">
-                <el-select v-model="serviceInfo.serviceState" placeholder="请选择">
-                    <el-option v-for="item in dictList" v-if="item.parentCode =='003' && item.dictCode != '003000'" 
-                    :key="item.dictCode" :label="item.dictName" :value="item.dictCode"></el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item label="所属学校：" class="width50" prop="academyId">
-              <el-select v-model="serviceInfo.academyId" placeholder="请选择" @change="changeAcademy"> 
-                <el-option v-for="item in academyList" :key="item.id" :value="item.id" :label="item.academyName"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="课题组／研究方向：" class="width50" prop="groupId">
-              <el-select v-model="serviceInfo.groupId" placeholder="请选择" @change="changeGroup">
-                <el-option v-for="item in academyGroupList" :label="item.groupName" :key="item.id" :value="item.id"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="所有者：" class="width50" prop="professorId">
-              <el-select v-model="serviceInfo.professorId" placeholder="请选择">
-                <el-option v-for="item in academyProfessorList" :label="item.professorName" :key="item.id" :value="item.id"></el-option>
-              </el-select>
-            </el-form-item>
-           
-            <h5 class="customModeTitle text_center">自定义模式</h5>
-            <div class="customMode" v-for="(relate, index) in serviceInfo.relates" :key="index" >
-                <div class="left">
-                <el-form-item label="类别" class="width50">
-                    <el-select v-model="relate.relateType" placeholder="请选择">
-                        <el-option v-for="item in dictList" v-if="item.parentCode =='006'" 
-                    :key="item.dictCode" :label="item.dictName" :value="item.dictCode"></el-option>
+        <div v-show="!isShowDocument">
+            <el-row>
+                <el-form label-position="right" :inline="true" label-width="140px" ref="ruleForm" :model="serviceInfo" :rules="rules">
+                    <el-form-item label="服务名称：" class="width50" prop="serviceName">
+                    <el-input placeholder="请输入服务名称" v-model="serviceInfo.serviceName" ></el-input>    
+                    </el-form-item>
+                    <el-form-item label="所属类型：" class="width50" prop="className">
+                        <el-select v-model="serviceInfo.class_id" placeholder="请选择">
+                            <el-option v-for="item in classList"
+                            :key="item.id" :label="item.name" :value="item.id">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="服务描述：" class="width100" prop="serviceDescr">
+                    <el-input v-model="serviceInfo.serviceDescr" :autosize="{ minRows: 2, maxRows: 6}" type="textarea" placeholder="请输入服务描述"></el-input>
+                    </el-form-item>
+                    <el-form-item label="输入参数：" class="width100" prop="in_arg">
+                    <el-input v-model="serviceInfo.in_arg" :autosize="{ minRows: 2, maxRows: 6}" type="textarea" placeholder="请输入输入参数"></el-input>
+                    </el-form-item>
+                    <el-form-item label="服务调用方式：" class="width50" prop="methodType">
+                        <el-select v-model="serviceInfo.methodType" placeholder="请选择">
+                            <el-option v-for="item in dictList" v-if="item.parentCode =='001'" 
+                            :key="item.dictCode" :label="item.dictName" :value="item.dictCode"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="是否免费：" class="width50" prop="methodType">
+                        <el-select v-model="serviceInfo.isCharge" placeholder="请选择">
+                            <el-option v-for="item in dictList" v-if="item.parentCode =='012'" 
+                            :key="item.dictCode" :label="item.dictName" :value="item.dictCode"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="服务调用路径：" class="width50" prop="url">
+                    <el-input v-model="serviceInfo.url" placeholder="请输入服务调用路径" ></el-input>
+                    </el-form-item>
+                    <el-form-item label="跳转方式" class="width50" prop="forwardType">
+                        <el-select v-model="serviceInfo.forwardType" placeholder="请选择" @change="changeForwarType">
+                            <el-option v-for="item in dictList" v-if="item.parentCode =='017'" 
+                            :key="item.dictCode" :label="item.dictName" :value="item.dictCode"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="服务跳转路径：" class="width50" prop="innerUrl">
+                    <el-input v-model="serviceInfo.innerUrl" :disabled="isForwardTypeDefault" placeholder="请输入服务调用路径" ></el-input>
+                    </el-form-item>
+                    
+                    <el-form-item label="banner路径：" class="width50">
+                    <el-input v-model="serviceInfo.banner" placeholder="请输入banner路径" ></el-input>
+                    </el-form-item>
+                    <el-form-item label="图片：" class="width50">
+                        <el-select v-model="serviceInfo.serviceIcon" placeholder="请选择">
+                            <el-option v-for="item in imgFileList"
+                            :key="item.imageId" :label="item.fileDesc" :value="item.imageId"></el-option>
+                        </el-select>
+                        <img        
+                            v-for="item in imgFileList" 
+                            :key="item.imageId" 
+                            v-if="serviceInfo.serviceIcon && serviceInfo.serviceIcon == item.imageId"
+                            :src="item.fileUrl" class="avatar">
+                    </el-form-item>
+                    <el-form-item label="服务状态：" class="width50" prop="serviceState">
+                        <el-select v-model="serviceInfo.serviceState" placeholder="请选择">
+                            <el-option v-for="item in dictList" v-if="item.parentCode =='003' && item.dictCode != '003000'" 
+                            :key="item.dictCode" :label="item.dictName" :value="item.dictCode"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="所属学校：" class="width50" prop="academyId">
+                    <el-select v-model="serviceInfo.academyId" placeholder="请选择" @change="changeAcademy"> 
+                        <el-option v-for="item in academyList" :key="item.id" :value="item.id" :label="item.academyName"></el-option>
                     </el-select>
-                </el-form-item>
-                <el-form-item label="名称" class="width50"  >
-                    <el-input v-model="relate.title" placeholder="请输入名称" ></el-input>
-                </el-form-item>
-                <el-form-item label="图标" class="width50"  >
-                   
-                    <el-select v-model="relate.banner" placeholder="请选择">
-                        <el-option v-for="item in imgFileList2"
-                        :key="item.imageId" :label="item.fileDesc" :value="item.imageId"></el-option>
+                    </el-form-item>
+                    <el-form-item label="课题组／研究方向：" class="width50" prop="groupId">
+                    <el-select v-model="serviceInfo.groupId" placeholder="请选择" @change="changeGroup">
+                        <el-option v-for="item in academyGroupList" :label="item.groupName" :key="item.id" :value="item.id"></el-option>
                     </el-select>
-                    <img        
-                        v-for="item in imgFileList2" 
-                        :key="item.imageId" 
-                        v-if="relate.banner && relate.banner == item.imageId"
-                        :src="item.fileUrl" class="avatar" />
-                </el-form-item>
-                <el-form-item label="描述" class="width50" >
-                    <el-input v-model="relate.content" placeholder="请输入描述" ></el-input>
-                </el-form-item>
-                </div>
-                <div class="right">
-                <a  @click="removeRelate(relate)"><i class="el-icon-close"></i></a>
-                </div>
-            </div>
-            <div class="text_center">
-                <el-button size="mini" @click="addRelate" round>添加+</el-button>
-            </div>
-            <hr />
-          </el-form>
-        </el-row>
-        <el-row>
-          <el-button type="text" v-if="type == 1" v-on:click="addServerInfo">编辑接入信息</el-button>
-        </el-row>
-        <el-row class="text_center">
-          <el-button type="primary" @click="submitForm('ruleForm')">确定</el-button>
-          <el-button type="primary" plain v-on:click="returnBack">取消</el-button>
-        </el-row>
+                    </el-form-item>
+                    <el-form-item label="所有者：" class="width50" prop="professorId">
+                    <el-select v-model="serviceInfo.professorId" placeholder="请选择">
+                        <el-option v-for="item in academyProfessorList" :label="item.professorName" :key="item.id" :value="item.id"></el-option>
+                    </el-select>
+                    </el-form-item>
+                
+                    <h5 class="customModeTitle text_center">自定义模式</h5>
+                    <div class="customMode" v-for="(relate, index) in serviceInfo.relates" :key="index" >
+                        <div class="left">
+                        <el-form-item label="类别" class="width50">
+                            <el-select v-model="relate.relateType" placeholder="请选择">
+                                <el-option v-for="item in dictList" v-if="item.parentCode =='006'" 
+                            :key="item.dictCode" :label="item.dictName" :value="item.dictCode"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="名称" class="width50"  >
+                            <el-input v-model="relate.title" placeholder="请输入名称" ></el-input>
+                        </el-form-item>
+                        <el-form-item label="图标" class="width50"  >
+                        
+                            <el-select v-model="relate.banner" placeholder="请选择">
+                                <el-option v-for="item in imgFileList2"
+                                :key="item.imageId" :label="item.fileDesc" :value="item.imageId"></el-option>
+                            </el-select>
+                            <img        
+                                v-for="item in imgFileList2" 
+                                :key="item.imageId" 
+                                v-if="relate.banner && relate.banner == item.imageId"
+                                :src="item.fileUrl" class="avatar" />
+                        </el-form-item>
+                        <el-form-item label="描述" class="width50" >
+                            <el-input v-model="relate.content" placeholder="请输入描述" ></el-input>
+                        </el-form-item>
+                        </div>
+                        <div class="right">
+                        <a  @click="removeRelate(relate)"><i class="el-icon-close"></i></a>
+                        </div>
+                    </div>
+                    <div class="text_center">
+                        <el-button size="mini" @click="addRelate" round>添加+</el-button>
+                    </div>
+                    <hr />
+                </el-form>
+            </el-row>
+            <el-row>
+                <el-button type="text" v-if="type == 1" v-on:click="addServerInfo">编辑接入信息</el-button>
+                <el-button type="text" v-if="type == 1" @click="showDocument">
+                    {{ serviceInfo.techDocumentExistence == true ? '编辑':'添加' }}技术文档信息
+                </el-button>
+            </el-row>
+            <el-row class="text_center">
+                <el-button type="primary" @click="submitForm('ruleForm')">确定</el-button>
+                <el-button type="primary" plain v-on:click="returnBack">取消</el-button>
+            </el-row>
+        </div>
+        <service-document :service-info="serviceInfo" v-if="isShowDocument"></service-document>
     </div>
 </template>
 <script>
 import { academyList, academyGroupList, academyProfessorList, addServiceInfo ,getServiceInfo, updataServiceInfo} from '@/api/service.js'
 import { getFileList } from '@/api/uploadFile.js'
+import  ServiceDocument  from './Document'
 import { getList } from '@/api/table'
 import { mapGetters } from 'vuex'
 export default {
+    components:{
+        ServiceDocument
+    },
     props:[
         'currentNode',//当前分类信息
         "type"  //0:添加 1：编辑
@@ -157,6 +178,8 @@ export default {
                 // academyName:'',
                 ServiceInvocationMode:'',
                 academyId:'',
+                forwardType:'',
+                innerUrl:"",
                 // professorName:'',
                 methodType:'',
                 professorId:'',
@@ -188,6 +211,8 @@ export default {
                 // professorName:'',
                 methodType:'',
                 professorId:'',
+                forwardType:'',
+                innerUrl:"",
                 groupId:"",
                 relates:[
                     {
@@ -223,25 +248,46 @@ export default {
                     { required: true, message: '请选择服务调用方式', trigger: 'change' }      
                 ],
                 url: [
-                    { required: true, message: '请选择服务调用路径', trigger: 'change' }
+                    { required: true, message: '请输入服务调用路径', trigger: 'blur' }
                 ],
                 in_arg: [
-                    { required: true, message: '请输入输入参数', trigger: 'change' }
+                    { required: true, message: '请输入输入参数', trigger: 'blur' }
                 ],
                 serviceState:[
-                    { required: true, message: '请输入服务状态', trigger: 'change' }
+                    { required: true, message: '请选择服务状态', trigger: 'change' }
                 ],
                 academyId:[
-                    { required: true, message: '请输入所属学校', trigger: 'change' }
+                    { required: true, message: '请选择所属学校', trigger: 'change' }
                 ],
                 professorId:[
-                    { required: true, message: '请输入所有者', trigger: 'change' }
-                ]
+                    { required: true, message: '请选择所有者', trigger: 'change' }
+                ],
+                forwardType:[
+                    { required: true, message: '请选择跳转方式', trigger: 'change' }
+                ],
+                innerUrl:[
+                    { required: true, message: '请输入服务跳转路径', trigger: 'blur' }
+                ],
             },
-            classList:null
+            classList:null,
+            isForwardTypeDefault:false,
+            isShowDocument:false
         }
     },
     methods: {
+        // 跳转方式改变
+        changeForwarType(val){
+            if(val == "017001"){
+                this.isForwardTypeDefault = true
+                this.serviceInfo.innerUrl = "defalut"
+            }else{
+                this.isForwardTypeDefault = false
+                if(this.serviceInfo.innerUrl == "defalut"){
+                    this.serviceInfo.innerUrl = ""
+                }
+            }
+            
+        },
         // 删除自定义模板
         removeRelate(item) {
             var index = this.serviceInfo.relates.indexOf(item)
@@ -340,6 +386,10 @@ export default {
             })
             
         },
+        // 显示技术文档页面
+        showDocument(){
+            this.isShowDocument = true        
+        }
     },
     mounted(){
         // 所属学校
