@@ -67,7 +67,7 @@
                 v-for="item in imgFileList" 
                 :key="item.imageId" 
                 v-if="form.academyImg == item.imageId"
-                :src="item.imageId" class="avatar" />
+                :src="item.fileUrl" class="avatar" />
           </template>
         </el-form-item>
 

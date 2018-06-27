@@ -111,7 +111,7 @@
                 v-for="item in imgFileList" 
                 :key="item.imageId" 
                 v-if="form.professorImg == item.imageId"
-                :src="item.imageId" class="avatar" />
+                :src="item.fileUrl" class="avatar" />
           </template>
         </el-form-item>
 
@@ -362,7 +362,7 @@ export default {
   mounted () {
     setTimeout(()=>{
       this.loadingData()
-      getFileList({ fileType:"013002" }).then(response =>{
+      getFileList({ fileType:"013003" }).then(response =>{
         this.imgFileList = response.data
       })
       getSchoolsList().then(responce =>{

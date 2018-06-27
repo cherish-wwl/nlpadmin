@@ -34,7 +34,7 @@
                 v-for="item in imgFileList" 
                 :key="item.imageId" 
                 v-if="form.groupImg == item.imageId"
-                :src="item.imageId" class="avatar" />
+                :src="item.fileUrl" class="avatar" />
           </template>
         </el-form-item>
         <editor id="editor_id" height="500px" width="100%" :content="form.groupDesc"

@@ -137,7 +137,10 @@
                 <el-button type="primary" plain v-on:click="returnBack">取消</el-button>
             </el-row>
         </div>
-        <service-document :service-info="serviceInfo" v-if="isShowDocument"></service-document>
+        <service-document 
+            @fromDocumentMenthod="fromDocumentMenthod" 
+            :service-info="serviceInfo" v-if="isShowDocument"
+        ></service-document>
     </div>
 </template>
 <script>
@@ -388,7 +391,19 @@ export default {
         },
         // 显示技术文档页面
         showDocument(){
+            // console.log(document.querySelectorAll("addServicePanel")[0].offsetTop)
+            // console.log(document.querySelectorAll("main-container")[0].scrollTop)
+            // document.getElementById("app-main").scrollTop = 200
             this.isShowDocument = true        
+
+        },
+        // 文档页面返回的方法
+        fromDocumentMenthod(){
+            this.isShowDocument == false
+            // 刷新techDocumentExistence 值
+            getServiceInfo({serviceId:this.$store.state.service.serviceId}).then(response =>{
+                this.serviceInfo.techDocumentExistence = response.data.techDocumentExistence
+            })
         }
     },
     mounted(){

@@ -1,7 +1,11 @@
 <template>
-  <el-form  class="documentForm" ref="documentForm" label-width="140px" label-position="right" :model="documentInfo" :rules="documentRules">
-   <el-row>
-     <h5 class="line-title">接口信息</h5>  
+  <el-form  id="documentForm" class="documentForm" ref="documentForm" label-width="140px" label-position="right" :model="documentInfo" :rules="documentRules">
+    <el-row class="text_right">
+      <el-button type="primary" size="mini" @click="submitForm">保存</el-button>
+      <el-button type="primary" size="mini" @click="rebackMethods">取消</el-button>
+    </el-row>
+    <el-row>
+      <h5 class="line-title">接口信息</h5>  
       <el-row>
         <el-form-item label="所属服务："  prop="serviceName">
           <el-input placeholder="请输入服务名称" disabled v-model="documentInfo.serviceName" ></el-input>    
@@ -27,12 +31,17 @@
           <el-input placeholder="请输入接口描述" :autosize="{ minRows: 2, maxRows: 10}" type="textarea"  v-model="documentInfo.interfacetext" ></el-input>    
         </el-form-item>
       </el-row>
-   </el-row>
-   <el-row>
+    </el-row>
+    <el-row>
       <h5 class="line-title">请求说明</h5>
       <el-row>
         <el-form-item label="请求参数："  prop="requestdata">
-          <el-table :data="documentInfo.requestdata"  border style="width: 100%" v-loading="loading">
+          <el-table 
+            :data="documentInfo.requestdata"  
+            border style="width: 100%" 
+            v-loading="loading"
+            ref="requestTable"
+            @select="checkedRequestLines">
             <!-- paraname（参数名）	type（参数类型）	value（值:用不上）	explain_（参数描述）	
             needorno（是否必填）	linktype（请求参数/返回参数）	range_（取值范围） -->
             <el-table-column type="selection" width="35"></el-table-column>
@@ -74,15 +83,23 @@
           <el-input placeholder="请输入请求示例" :autosize="{ minRows: 2, maxRows: 10}" type="textarea"  v-model="documentInfo.bodyexample" ></el-input>    
         </el-form-item>
       </el-row>
-   </el-row>
-   <el-row>
+    </el-row>
+    <el-row>
       <h5 class="line-title"><span>返回说明</span></h5>
       <el-row>
         <el-form-item label="返回参数："  prop="backdata">
 
-          <el-table :data="documentInfo.backdata"  border style="width: 100%" v-loading="loading">
+          <el-table 
+            :data="documentInfo.backdata"  
+            border 
+            style="width: 100%" 
+            v-loading="loading"
+            ref="backTable"
+            @select="checkedBackLines"
+            >
             <!-- paraname（参数名）	type（参数类型）	value（值:用不上）	explain_（参数描述）	
             needorno（是否必填）	linktype（请求参数/返回参数）	range_（取值范围） -->
+            
             <el-table-column type="selection" width="35"></el-table-column>
             <el-table-column prop="paraname" label="参数" min-width="150">
               <template slot-scope="scope">
@@ -116,8 +133,8 @@
       </el-row>
     </el-row>
     <el-row class="text_center">
-      <el-button type="primary" @click="submitForm">确定</el-button>
-      <el-button type="primary" >取消</el-button>
+      <el-button type="primary" @click="submitForm">保存</el-button>
+      <el-button type="primary" @click="rebackMethods">取消</el-button>
     </el-row>
   </el-form>
   
@@ -139,34 +156,13 @@ export default {
       typeArray:["Byte","Short","Char","Long","Int","Float","Double","String","Date","Int"],
       loading:false,
       techDocumentExistence:false,
+      deleteRequestList:[],
+      deleteBackList:[],
       documentInfo:{
         serviceId:'',
         serviceName:'',
-        requestdata:[
-          {
-            paraname:"name",
-            type:"String",
-            explain_:"姓名",
-            needorno:"是",
-            linktype:"request"
-          },
-          {
-            paraname:"name",
-            type:"String",
-            explain_:"姓名",
-            needorno:"是",
-            linktype:"request"
-          }
-        ],
-        backdata:[
-          {
-            paraname:"name",
-            type:"String",
-            explain_:"姓名",
-            needorno:"是",
-            linktype:"back"
-          }
-        ]
+        requestdata:[],
+        backdata:[]
       },
       documentRules:{
         httpmethod:[
@@ -179,12 +175,57 @@ export default {
     };
   },
   methods: {
+    // 初始化数据
     init(val){
       this.documentInfo.serviceId = val.serviceId
       this.documentInfo.serviceName = val.serviceName
       this.techDocumentExistence =  val.techDocumentExistence
       console.log(this.documentInfo)
+      if(this.techDocumentExistence){
+        // 已存在文档
+        this.loading = true
+        getTechDocument({serviceId:val.serviceId}).then( res=>{
+          this.loading = false
+          this.addTableIndexMethod(res.requestdata)
+          this.addTableIndexMethod(res.backdata)
+          this.documentInfo = res
+        })
+      }
+      
+      // var data = {
+      //   serviceId:'',
+      //   serviceName:'',
+      //   requestdata:[
+      //     {
+      //       paraname:"name",
+      //       type:"String",
+      //       explain_:"姓名",
+      //       needorno:"是",
+      //       linktype:"request"
+      //     },
+      //     {
+      //       paraname:"name",
+      //       type:"String",
+      //       explain_:"姓名",
+      //       needorno:"是",
+      //       linktype:"request"
+      //     }
+      //   ],
+      //   backdata:[
+      //     {
+      //       paraname:"name",
+      //       type:"String",
+      //       explain_:"姓名",
+      //       needorno:"是",
+      //       linktype:"back"
+      //     }
+      //   ]
+      // }
+      // this.addTableIndexMethod(data.requestdata)
+      // this.addTableIndexMethod(data.backdata)
+      // this.documentInfo = data
     },
+    // 添加一行请求参数/返回参数
     addData(type){
       var appendData
       if(type == "request"){
@@ -195,8 +236,9 @@ export default {
           needorno:"",
           linktype:"request"
         }
-        console.log(this.documentInfo.requestdata)
+      
         this.documentInfo.requestdata.push(appendData)
+        this.addTableIndexMethod(this.documentInfo.requestdata)
       }
       if(type == "back"){
          appendData = {
@@ -206,22 +248,82 @@ export default {
           linktype:"back"
         }
         this.documentInfo.backdata.push(appendData)
+        this.addTableIndexMethod(this.documentInfo.backdata)
       }
+      console.log(this.documentInfo)
     },
+    // 添加一行请求参数/返回参数
     deleteData(type){
-      if(type == "request"){
 
+      if(type == "request"){    
+        this.deleteRequestList.forEach( element =>{
+          this.documentInfo.requestdata.forEach( (element1, index) => {
+            if( element.tableIndex == element1.tableIndex){
+              this.documentInfo.requestdata.splice(index--,1)
+            }
+          })
+        })
+        // 清空选中效果
+        this.deleteRequestList = []
+        this.$refs.requestTable.clearSelection()
       }
       if(type == "back"){
-        
+        this.deleteBackList.forEach( element =>{
+          this.documentInfo.backdata.forEach( (element1, index) => {
+            if( element.tableIndex == element1.tableIndex){
+              this.documentInfo.backdata.splice(index--,1)
+            }
+          })
+        })
+        // 清空选中效果
+        this.deleteBackList = []
+        this.$refs.backTable.clearSelection()
       }
+      
+
+    
     },
+    // 获取选中的返回参数的数据
+    checkedBackLines(val){
+      console.log("当前返回选中的有：")
+      console.log(val)
+      this.deleteBackList = val
+    },
+    // 获取选中的请求参数的数据
+    checkedRequestLines(val){
+      console.log("当前请求选中的有：")
+      console.log(val)
+      this.deleteRequestList = val
+    },
+     // 给请求参数表格和返回参数表格 数据 添加index 唯一标识  用于删除
+    addTableIndexMethod(data){
+      console.log("添加index")
+      data.forEach((element,index) => {
+        console.log(element)
+        element.tableIndex = index ++ 
+      })
+    },
+    // 保存技术文档
     submitForm(){
       this.$refs['documentForm'].validate((valid) => {
         if (valid) {
           console.log(this.documentInfo)
+          if(this.techDocumentExistence){
+            updateTechDocument(this.documentInfo).then( res =>{
+              console.log(res)
+            })
+            
+          }else{
+            addTechDocument(this.documentInfo).then( res =>{
+              console.log(res)
+            })
+          }
         }
       })
+    },
+    // 返回上一级
+    rebackMethods(){
+      this.$emit("fromDocumentMenthod")
     }
   },
   mounted (){
@@ -233,7 +335,7 @@ export default {
 </script>
 <style  scoped rel="stylesheet/scss" lang="scss">
 .documentForm{
-  padding: 20px;
+  padding: 0 20px;
   h5.line-title{
     position: relative; 
     padding-left: 10%;    

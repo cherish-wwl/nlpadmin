@@ -26,7 +26,7 @@
           <el-table-column prop="serviceDescr" label="描述" width="250" :formatter="stringFormatter"> </el-table-column>
           <el-table-column prop="url" label="服务调用路径" min-width="150"> </el-table-column>
           
-          <el-table-column prop="in_arg" label="输入参数" min-width="250" :formatter="stringFormatter"> </el-table-column>
+          <el-table-column prop="in_arg" label="输入参数" min-width="250" :formatter="stringFormatter2"> </el-table-column>
           <el-table-column prop="banner" label="banner路径" min-width="150"> </el-table-column>
           <el-table-column prop="academyName" label="所属学校" min-width="150"> </el-table-column>
           <el-table-column prop="professorName" label="所有者" min-width="150"></el-table-column>
@@ -129,6 +129,9 @@ export default {
     // 字符串转换
     stringFormatter( row, column ){
       return subStringNoMore3line(row.serviceDescr,30)
+    },
+    stringFormatter2( row ){
+      return subStringNoMore3line(row.in_arg,30)
     },
     // 查询
     querySearch (){
