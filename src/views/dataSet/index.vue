@@ -69,14 +69,21 @@
          :label-width="item.labelWidth" 
          :prop="item.prop" 
          :rules="item.rules">   
-          <el-input v-if="item.isNumber" v-model.number="form[item.prop]" auto-complete="off"></el-input>
-          <el-input v-else-if="item.isInput" v-model="form[item.prop]" auto-complete="off"></el-input>
-          <el-input v-else-if="item.isTextarea" type="textarea" :autosize="{ minRows: 2, maxRows: 6}" :rows="2" v-model="form[item.prop]" auto-complete="off"></el-input>
-          <el-select v-else-if="item.isSelect" v-model="form[item.prop]" placeholder="请选择">
+          <el-input v-if="item.isNumber == true" v-model.number="form[item.prop]" auto-complete="off"></el-input>
+          <el-input v-if="item.isInput == true" v-model="form[item.prop]" auto-complete="off"></el-input>
+          <el-input v-if="item.isTextarea == true" type="textarea" :autosize="{ minRows: 2, maxRows: 6}" :rows="2" v-model="form[item.prop]" auto-complete="off"></el-input>
+          <el-select v-if="item.isSelect == true" v-model="form[item.prop]" placeholder="请选择">
              <el-option v-for="child in dictList" v-if="child.parentCode ==item.parentCode" 
                     :key="child.dictCode" :label="child.dictName" :value="child.dictCode"></el-option>
           </el-select>
+          <selete-image 
+            :value="form[item.prop]" 
+            :dictParentCode = "'013008'" 
+            v-if="item.isImage == true"
+            @getImgIdMethod="getImgIdMethod">
+          </selete-image>
         </el-form-item>
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
@@ -91,7 +98,11 @@ import { getlevelOneData, getlevelTwoData, getTableList,
          addlevelOneData, addlevelTwoData,addTableList, 
          editlevelOneData, editlevelTwoData, editTableList
         } from '@/api/dataset'
+import SeleteImage from '@/components/SeleteImage'
 export default {
+  components:{
+    SeleteImage
+  },
   data () {
     return {
       activeName: 'trade',
@@ -110,29 +121,7 @@ export default {
       dialogTitle:'添加数据',   
       form:{},
       formData:'',
-      dataMode:"add",
-      levelNum:'one',
-      formLabelWidth: '120px'
-    }
-  },
-  methods:{
-    handleSizeChange(val) {
-      console.log(`每页 ${val} 条`)
-      this.pageSize = val 
-      this.loadingTable(this.currentLevelTwoId)
-    },
-    handleCurrentChange(val) {
-      console.log(`当前页: ${val}`)
-      console.log(`当前页: ${this.currentPage}`)
-      this.currentPage = val 
-      this.loadingTable(this.currentLevelTwoId)
-
-    },
-    addRowData(){
-      this.dialogFormVisible = true
-      this.dialogTitle = '添加数据'
-      let formData =
-        [ 
+      formData3:[ 
           {name:'名称',
           prop:'name',
           rules:[
@@ -141,13 +130,11 @@ export default {
           ],
           labelWidth:'180px',
           isInput:true,
-          isTextarea:false,
           },
           {name:'图片',
            prop:'image',
            labelWidth:'180px',
-           isInput:true,
-           isTextarea:false,
+           isImage:true
           },
           {name:'上传者',
            prop:'uploader',
@@ -167,8 +154,6 @@ export default {
              { required: true, message: '请输入大小', pattern: /.+/, trigger: 'blur'},
             { type: 'number', message: '必须是数字'}
            ],
-           isInput:true,
-           isTextarea:false,
           },
           {name:'介绍',
            prop:'introduce',
@@ -198,7 +183,49 @@ export default {
            isInput:true,
            isTextarea:false,
           },
-        ]
+      ],
+      formData2:[ 
+        {name:'名称',
+        prop:'name',
+        rules:[
+          { required: true, message: '名称不能为空', trigger: 'blur'},
+          { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+        ],
+        labelWidth:'180px',
+        isInput:true,
+        isTextarea:false,
+        },
+        {name:'图标',
+          prop:'icon',
+          labelWidth:'180px',
+          isInput:true,
+          isTextarea:false,
+        },
+      ],
+      dataMode:"add",
+      levelNum:'one',
+      formLabelWidth: '120px'
+    }
+  },
+  methods:{
+    getImgIdMethod(val){
+      this.form.image = val
+    },
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`)
+      this.pageSize = val 
+      this.loadingTable(this.currentLevelTwoId)
+    },
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`)
+      console.log(`当前页: ${this.currentPage}`)
+      this.currentPage = val 
+      this.loadingTable(this.currentLevelTwoId)
+
+    },
+    addRowData(){
+      this.dialogFormVisible = true
+      this.dialogTitle = '添加数据'
       this.form = {
         "name":'',
         // "type_name":"",
@@ -212,71 +239,17 @@ export default {
         "attr":this.currentLevelOneId,
         "url":"", 
       },
-      this.formData = formData
+      this.formData = this.formData3
       this.levelNum = 'three'
       this.dataMode = 'add'
     },
     editRowData(row){
-
       console.log( row )
       this.dialogFormVisible = true
       this.dialogTitle = '编辑数据'
-      let formData =
-        [ 
-          {name:'名称',
-          prop:'name',
-          rules:[
-            { required: true, message: '名称不能为空', trigger: 'blur'},
-            { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
-          ],
-          labelWidth:'180px',
-          isInput:true,
-          isTextarea:false,
-          },
-          {name:'图片',
-           prop:'image',
-           labelWidth:'180px',
-           isInput:true,
-           isTextarea:false,
-          },
-          {name:'uploader',
-           prop:'uploader',
-           labelWidth:'180px',
-           isInput:true,
-           isTextarea:false,
-          },
-          {name:'size',
-           prop:'size',
-           labelWidth:'180px',
-           isInput:true,
-           isTextarea:false,
-          },
-          {name:'introduce',
-           prop:'introduce',
-           labelWidth:'180px',
-           isInput:true,
-           isTextarea:false,
-          },
-          {name:'format',
-           prop:'format',
-           labelWidth:'180px',
-           isInput:true,
-           isTextarea:false,
-          },
-          {name:'url',
-           prop:'url',
-           labelWidth:'180px',
-           isInput:true,
-           isTextarea:false,
-          },
-        ]
-     
-     
-     
       this.form = row
-      this.formData = formData
-      this.levelNum = 'three'
-      
+      this.formData = this.formData3
+      this.levelNum = 'three' 
       this.dataMode = 'edit'
     },
     LevelOneClick( id ) {
@@ -315,31 +288,12 @@ export default {
         this.dialogTitle = '添加'
         this.levelNum = level
         this.dataMode="add"
-        let formData =
-        [ 
-          {name:'名称',
-          prop:'name',
-          rules:[
-            { required: true, message: '名称不能为空', trigger: 'blur'},
-            { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
-          ],
-          labelWidth:'180px',
-          isInput:true,
-          isTextarea:false,
-          },
-          {name:'图标',
-           prop:'icon',
-           labelWidth:'180px',
-           isInput:true,
-           isTextarea:false,
-          },
-        ]
         let form = {
           name:'',
           icon:''
         }
         this.form = form
-        this.formData= formData
+        this.formData = this.formData2
     },
     editClick ( item, level ) {
       console.log( item )
@@ -347,27 +301,8 @@ export default {
       this.dialogTitle = '编辑'
       this.levelNum = level
       this.dataMode="edit"
-      let formData =
-        [ 
-          {name:'名称',
-          prop:'name',
-          rules:[
-            { required: true, message: '名称不能为空', trigger: 'blur'},
-            { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
-          ],
-          labelWidth:'180px',
-          isInput:true,
-          isTextarea:false,
-          },
-          {name:'图标',
-           prop:'icon',
-           labelWidth:'180px',
-           isInput:true,
-           isTextarea:false,
-          },
-        ]
-        this.form = item
-        this.formData= formData
+      this.form = item
+      this.formData = this.formData2
     },
     deleteClick ( item, level ) {
       this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {

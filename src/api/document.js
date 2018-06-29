@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 获取服务技术文档详情
 export function getTechDocument(params){
     return request({
-      url:'/classify/techDocument/doAdd',
+      url:'/classify/techDocument/Query',
       method:'post',
       params
     })

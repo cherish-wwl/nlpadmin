@@ -43,13 +43,13 @@
                     <el-input v-model="serviceInfo.url" placeholder="请输入服务调用路径" ></el-input>
                     </el-form-item>
                     <el-form-item label="跳转方式" class="width50" prop="forwardType">
-                        <el-select v-model="serviceInfo.forwardType" placeholder="请选择" @change="changeForwarType">
-                            <el-option v-for="item in dictList" v-if="item.parentCode =='017'" 
+                        <el-select v-model="serviceInfo.forwardType" placeholder="请选择">
+                            <el-option v-for="item in dictList" v-if="item.parentCode =='014'" 
                             :key="item.dictCode" :label="item.dictName" :value="item.dictCode"></el-option>
                         </el-select>
                     </el-form-item>
                     <el-form-item label="服务跳转路径：" class="width50" prop="innerUrl">
-                    <el-input v-model="serviceInfo.innerUrl" :disabled="isForwardTypeDefault" placeholder="请输入服务调用路径" ></el-input>
+                    <el-input v-model="serviceInfo.innerUrl" :disabled="serviceInfo.forwardType =='014001'?true:false" placeholder="请输入服务调用路径" ></el-input>
                     </el-form-item>
                     
                     <el-form-item label="banner路径：" class="width50">
@@ -138,15 +138,17 @@
             </el-row>
         </div>
         <service-document 
+            v-if="isShowDocument" 
             @fromDocumentMenthod="fromDocumentMenthod" 
-            :service-info="serviceInfo" v-if="isShowDocument"
+            :service-info="serviceInfo" 
+            
         ></service-document>
     </div>
 </template>
 <script>
 import { academyList, academyGroupList, academyProfessorList, addServiceInfo ,getServiceInfo, updataServiceInfo} from '@/api/service.js'
 import { getFileList } from '@/api/uploadFile.js'
-import  ServiceDocument  from './Document'
+import  ServiceDocument  from './Document' 
 import { getList } from '@/api/table'
 import { mapGetters } from 'vuex'
 export default {
@@ -278,9 +280,12 @@ export default {
         }
     },
     methods: {
+        submitFormNew () {
+            this.isShowDocument = false;
+        },
         // 跳转方式改变
         changeForwarType(val){
-            if(val == "017001"){
+            if(val == "014001"){
                 this.isForwardTypeDefault = true
                 this.serviceInfo.innerUrl = "defalut"
             }else{
@@ -394,12 +399,15 @@ export default {
             // console.log(document.querySelectorAll("addServicePanel")[0].offsetTop)
             // console.log(document.querySelectorAll("main-container")[0].scrollTop)
             // document.getElementById("app-main").scrollTop = 200
+
+            this.serviceInfo.serviceId = this.$store.state.service.serviceId
             this.isShowDocument = true        
 
         },
         // 文档页面返回的方法
         fromDocumentMenthod(){
-            this.isShowDocument == false
+            console.log("文档页面返回的方法")
+            this.isShowDocument = false
             // 刷新techDocumentExistence 值
             getServiceInfo({serviceId:this.$store.state.service.serviceId}).then(response =>{
                 this.serviceInfo.techDocumentExistence = response.data.techDocumentExistence

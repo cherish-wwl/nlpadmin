@@ -2,7 +2,7 @@
   <el-form  id="documentForm" class="documentForm" ref="documentForm" label-width="140px" label-position="right" :model="documentInfo" :rules="documentRules">
     <el-row class="text_right">
       <el-button type="primary" size="mini" @click="submitForm">保存</el-button>
-      <el-button type="primary" size="mini" @click="rebackMethods">取消</el-button>
+      <el-button type="primary" size="mini" @click="rebackMethods">返回上一级</el-button>
     </el-row>
     <el-row>
       <h5 class="line-title">接口信息</h5>  
@@ -134,7 +134,7 @@
     </el-row>
     <el-row class="text_center">
       <el-button type="primary" @click="submitForm">保存</el-button>
-      <el-button type="primary" @click="rebackMethods">取消</el-button>
+      <el-button type="primary" @click="rebackMethods">返回上一级</el-button>
     </el-row>
   </el-form>
   
@@ -177,53 +177,23 @@ export default {
   methods: {
     // 初始化数据
     init(val){
-      this.documentInfo.serviceId = val.serviceId
-      this.documentInfo.serviceName = val.serviceName
-      this.techDocumentExistence =  val.techDocumentExistence
-      console.log(this.documentInfo)
-      if(this.techDocumentExistence){
+      
+      if(val.techDocumentExistence){
         // 已存在文档
         this.loading = true
         getTechDocument({serviceId:val.serviceId}).then( res=>{
           this.loading = false
-          this.addTableIndexMethod(res.requestdata)
-          this.addTableIndexMethod(res.backdata)
-          this.documentInfo = res
+          this.addTableIndexMethod(res.data.requestdata)
+          this.addTableIndexMethod(res.data.backdata)
+          this.documentInfo = res.data
+          this.documentInfo.serviceId = val.serviceId
+          this.documentInfo.serviceName = val.serviceName
         })
-      }
-      
-      // var data = {
-      //   serviceId:'',
-      //   serviceName:'',
-      //   requestdata:[
-      //     {
-      //       paraname:"name",
-      //       type:"String",
-      //       explain_:"姓名",
-      //       needorno:"是",
-      //       linktype:"request"
-      //     },
-      //     {
-      //       paraname:"name",
-      //       type:"String",
-      //       explain_:"姓名",
-      //       needorno:"是",
-      //       linktype:"request"
-      //     }
-      //   ],
-      //   backdata:[
-      //     {
-      //       paraname:"name",
-      //       type:"String",
-      //       explain_:"姓名",
-      //       needorno:"是",
-      //       linktype:"back"
-      //     }
-      //   ]
-      // }
-      // this.addTableIndexMethod(data.requestdata)
-      // this.addTableIndexMethod(data.backdata)
-      // this.documentInfo = data
+      }  
+      this.documentInfo.serviceId = val.serviceId
+      this.documentInfo.serviceName = val.serviceName
+      this.techDocumentExistence =  val.techDocumentExistence
+      console.log(this.documentInfo)  
     },
     // 添加一行请求参数/返回参数
     addData(type){
@@ -254,7 +224,6 @@ export default {
     },
     // 添加一行请求参数/返回参数
     deleteData(type){
-
       if(type == "request"){    
         this.deleteRequestList.forEach( element =>{
           this.documentInfo.requestdata.forEach( (element1, index) => {
@@ -310,12 +279,22 @@ export default {
           console.log(this.documentInfo)
           if(this.techDocumentExistence){
             updateTechDocument(this.documentInfo).then( res =>{
-              console.log(res)
+              this.$alert('更新成功！', '提示：', {
+                confirmButtonText: '确定',
+                callback: action => {
+                  this.rebackMethods()
+                }
+              })
             })
             
           }else{
             addTechDocument(this.documentInfo).then( res =>{
-              console.log(res)
+              this.$alert('添加成功！', '提示：', {
+              confirmButtonText: '确定',
+                callback: action => {
+                  this.rebackMethods()
+                }
+              })
             })
           }
         }

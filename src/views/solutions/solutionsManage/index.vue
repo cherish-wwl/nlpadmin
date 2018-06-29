@@ -351,7 +351,6 @@ export default {
       this.dialogFormVisible = true
       this.entryInfoStatus = 1 //0:代表add 1：edit
       this.solutionId = row.solutionId
-      
       getSolutionEntryInfo({serviceId:this.solutionId}).then(res =>{
         if(res.data == null){
           this.showEntryInfo = false
@@ -368,6 +367,7 @@ export default {
           },500)
           
         }
+        console.log(this.showEntryInfo)
       })
     },
     addRowData(mode) {
@@ -452,18 +452,24 @@ export default {
 
           }else{
             updateSolution(this.form).then(response => {
-             
-              this.entryInfo.accessId = this.solutionId
+              console.log("this.solutionId")
+              console.log(this.solutionId)
+              
               if( !this.hasEntryInfo ){
-                 // 新增接入信息
-                addSolutionEntryInfo(this.entryInfo).then(res =>{
-                  this.$message({
-                    message: '保存成功！',
-                    type: 'success'
-                  })  
-                })
+                if(this.showEntryInfo){
+                  // 新增接入信息
+                  this.entryInfo.accessId = this.solutionId
+                  addSolutionEntryInfo(this.entryInfo).then(res =>{
+                    this.$message({
+                      message: '保存成功！',
+                      type: 'success'
+                    })  
+                  })
+                }
+                
               }else{
                  // 更新接入信息
+                this.entryInfo.accessId = this.solutionId
                 updateSolutionEntryInfo(this.entryInfo).then(res =>{
                   this.$message({
                     message: '保存成功！',

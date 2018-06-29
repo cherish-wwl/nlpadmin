@@ -216,9 +216,14 @@ export default {
       this.currentPage = 1
       this.loadingData()
     },
-    triggerGroupList(){
+    triggerGroupList(mode){
       this.groupFromList = []
-      this.form.groupId = ''
+      
+      if(mode =="update"){
+        
+      }else{
+        this.form.groupId = ''
+      }
       getGrouplist({academyId:this.form.academyId}).then(responce =>{
         this.groupFromList = responce.data
       })
@@ -288,6 +293,7 @@ export default {
         professorImg:''
       }
       this.form = row
+      this.triggerGroupList("update")
       this.dialogTitle = '编辑'
       this.edieMode = true
       this.dialogFormVisible = true
